@@ -27,6 +27,13 @@ class ViewController: UIViewController, WKNavigationDelegate, UIScrollViewDelega
 		blobUtils: BlobUtil,
 		contactsSynchronization: IosMobileContactsFacade
 	) {
+    Task.detached { @MainActor in
+      let entityClient = EntityClient()
+      let typeRef = TypeRef(app: "tutanota", type: "Mail")
+      let result = await entityClient.loadElement(typeRef: typeRef, id: "myId")
+      TUTSLog("Result from swift: \(result)")
+    }
+
 		self.themeManager = themeManager
 		self.alarmManager = alarmManager
 		self.notificationsHandler = notificaionsHandler
@@ -71,6 +78,8 @@ class ViewController: UIViewController, WKNavigationDelegate, UIScrollViewDelega
 			sqlCipherFacade: self.sqlCipherFacade,
 			contactsSynchronization: contactsSynchronization
 		)
+
+
 	}
 
 	required init?(coder: NSCoder) { fatalError("Not NSCodable") }

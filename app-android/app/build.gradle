@@ -7,9 +7,9 @@ plugins {
 
 android {
   defaultConfig {
-		compileSdk 33
+	compileSdk 34
 	applicationId "de.tutao.tutanota"
-	minSdkVersion 23
+	minSdkVersion 26
 	targetSdkVersion 33
 		versionCode 396340
 		versionName "229.240513.0"
@@ -170,6 +170,7 @@ dependencies {
   implementation 'org.conscrypt:conscrypt-android:2.5.2'
   implementation 'com.squareup.okhttp3:okhttp:4.11.0'
 
+	implementation "net.java.dev.jna:jna:5.13.0@aar"
 
   testImplementation "org.jetbrains.kotlin:kotlin-stdlib-jdk8:$kotlin_version"
   testImplementation 'androidx.test.ext:junit-ktx:1.1.3'
