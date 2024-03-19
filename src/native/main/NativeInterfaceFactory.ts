@@ -30,7 +30,8 @@ import { LoginController } from "../../api/main/LoginController.js"
 import { MobileContactsFacade } from "../common/generatedipc/MobileContactsFacade.js"
 import { MobileContactsFacadeSendDispatcher } from "../common/generatedipc/MobileContactsFacadeSendDispatcher.js"
 import { WebMobileFacade } from "./WebMobileFacade.js"
-import stream from "mithril/stream"
+import { MobilePaymentsFacade } from "../common/generatedipc/MobilePaymentsFacade.js"
+import { MobilePaymentsFacadeSendDispatcher } from "../common/generatedipc/MobilePaymentsFacadeSendDispatcher.js"
 
 export type NativeInterfaces = {
 	native: NativeInterfaceMain
@@ -40,6 +41,7 @@ export type NativeInterfaces = {
 	commonSystemFacade: CommonSystemFacade
 	themeFacade: ThemeFacade
 	mobileContactsFacade: MobileContactsFacade
+	mobilePaymentsFacade: MobilePaymentsFacade
 }
 
 export type DesktopInterfaces = {
@@ -76,6 +78,7 @@ export function createNativeInterfaces(
 	const mobileSystemFacade = new MobileSystemFacadeSendDispatcher(native)
 	const themeFacade = new ThemeFacadeSendDispatcher(native)
 	const mobileContactsFacade = new MobileContactsFacadeSendDispatcher(native)
+	const mobilePaymentsFacade = new MobilePaymentsFacadeSendDispatcher(native)
 	return {
 		native,
 		fileApp,
@@ -84,6 +87,7 @@ export function createNativeInterfaces(
 		commonSystemFacade,
 		themeFacade,
 		mobileContactsFacade,
+		mobilePaymentsFacade,
 	}
 }
 

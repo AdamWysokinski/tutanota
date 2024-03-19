@@ -111,6 +111,7 @@ import { ContactImporter } from "../../contacts/ContactImporter.js"
 import { MobileContactsFacade } from "../../native/common/generatedipc/MobileContactsFacade.js"
 import { PermissionError } from "../common/error/PermissionError.js"
 import { WebMobileFacade } from "../../native/main/WebMobileFacade.js"
+import { MobilePaymentsFacade } from "../../native/common/generatedipc/MobilePaymentsFacade.js"
 
 assertMainOrNode()
 
@@ -473,6 +474,10 @@ class MainLocator {
 
 	get mobileContactsFacade(): MobileContactsFacade {
 		return this.getNativeInterface("mobileContactsFacade")
+	}
+
+	get mobilePaymentsFacade(): MobilePaymentsFacade {
+		return this.getNativeInterface("mobilePaymentsFacade")
 	}
 
 	async mailAddressTableModelForOwnMailbox(): Promise<MailAddressTableModel> {
