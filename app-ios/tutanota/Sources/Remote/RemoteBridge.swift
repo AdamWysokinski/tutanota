@@ -54,6 +54,7 @@ class RemoteBridge: NSObject, NativeInterface {
 			commonSystemFacade: commonSystemFacade,
 			fileFacade: fileFacade,
 			mobileContactsFacade: IosMobileContactsFacade(userDefault: UserDefaults.standard),
+			mobilePaymentsFacade: IosMobilePaymentsFacade(),
 			mobileSystemFacade: IosMobileSystemFacade(viewController: self.viewController),
 			nativeCredentialsFacade: nativeCredentialsFacade,
 			nativeCryptoFacade: nativeCryptoFacade,

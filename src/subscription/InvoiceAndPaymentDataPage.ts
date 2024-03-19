@@ -6,7 +6,7 @@ import { InvoiceDataInput, InvoiceDataInputLocation } from "./InvoiceDataInput"
 import { PaymentMethodInput } from "./PaymentMethodInput"
 import stream from "mithril/stream"
 import Stream from "mithril/stream"
-import type { InvoiceData, PaymentData } from "../api/common/TutanotaConstants"
+import type { InvoiceData, PaymentData, PlanType } from "../api/common/TutanotaConstants"
 import { getClientType, Keys, PaymentDataResultType, PaymentMethodType, PaymentMethodTypeToName } from "../api/common/TutanotaConstants"
 import { showProgressDialog } from "../gui/dialogs/ProgressDialog"
 import type { AccountingInfo, Braintree3ds2Request } from "../api/entities/sys/TypeRefs.js"
@@ -37,16 +37,14 @@ export class InvoiceAndPaymentDataPage implements WizardPageN<UpgradeSubscriptio
 	private _invoiceDataInput: InvoiceDataInput | null = null
 	private _availablePaymentMethods: Array<SegmentControlItem<PaymentMethodType>> | null = null
 	private _selectedPaymentMethod: Stream<PaymentMethodType>
-	private _upgradeData: UpgradeSubscriptionData
 	private dom!: HTMLElement
 	private __signupPaidTest?: UsageTest
 	private __paymentPaypalTest?: UsageTest
 
-	constructor(upgradeData: UpgradeSubscriptionData) {
+	constructor() {
 		this.__signupPaidTest = locator.usageTestController.getTest("signup.paid")
 		this.__paymentPaypalTest = locator.usageTestController.getTest("payment.paypal")
 
-		this._upgradeData = upgradeData
 		this._selectedPaymentMethod = stream()
 
 		this._selectedPaymentMethod.map((method) => neverNull(this._paymentMethodInput).updatePaymentMethod(method))

@@ -3,7 +3,7 @@ import type { TranslationKey } from "../misc/LanguageViewModel"
 import { lang } from "../misc/LanguageViewModel"
 import type { Country } from "../api/common/CountryList"
 import { CountryType } from "../api/common/CountryList"
-import type { PaymentData } from "../api/common/TutanotaConstants"
+import { PaymentData } from "../api/common/TutanotaConstants"
 import { defaultPaymentMethod, PaymentMethodType } from "../api/common/TutanotaConstants"
 import { PayPalLogo } from "../gui/base/icons/Icons"
 import { LazyLoaded, noOp, promiseMap } from "@tutao/tutanota-utils"
@@ -22,9 +22,6 @@ import { isUpdateForTypeRef } from "../api/common/utils/EntityUpdateUtils.js"
 import { EntityEventsListener } from "../api/main/EventController.js"
 import { BaseButton } from "../gui/base/buttons/BaseButton.js"
 import { isIOSApp } from "../api/common/Env"
-import { Button, ButtonType } from "../gui/base/Button.js"
-import { MobilePaymentsFacade } from "../native/common/generatedipc/MobilePaymentsFacade.js"
-import { PaymentInterval } from "./PriceUtils.js"
 
 /**
  * Component to display the input fields for a payment method. The selector to switch between payment methods is not included.
@@ -115,11 +112,7 @@ export class PaymentMethodInput {
 			case PaymentMethodType.Sepa: // FIXME: where to put this? this was how this if/else thing worked before!
 				return m(SimplifiedCreditCardInput, { viewModel: this.ccViewModel as SimplifiedCreditCardViewModel })
 			case PaymentMethodType.AppStore:
-				return m(AppStoreInput, {
-					plan: "revolutionary",
-					facade: locator.mobilePaymentsFacade,
-					interval: this._subscriptionOptions.paymentInterval(),
-				}) // FIXME: add app store payment button
+				throw new Error("should not get here") // this should have been bypassed
 		}
 	}
 
@@ -231,35 +224,6 @@ export class PaymentMethodInput {
 		}
 
 		return availablePaymentMethods
-	}
-}
-
-type AppStoreAttrs = {
-	plan: string
-	interval: PaymentInterval
-	facade: MobilePaymentsFacade
-}
-
-class AppStoreInput {
-	view({ attrs }: Vnode<AppStoreAttrs>): Children {
-		return [
-			m(
-				".flex-center",
-				{
-					style: {
-						"margin-top": "50px",
-					},
-				},
-				m(Button, {
-					type: ButtonType.Primary,
-					label: () => "App Store",
-					click: async () => {
-						let result = await attrs.facade.requestSubscriptionToPlan(attrs.plan, attrs.interval)
-						console.log(result)
-					},
-				}),
-			),
-		]
 	}
 }
 

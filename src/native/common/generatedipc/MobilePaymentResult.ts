@@ -1,7 +1,8 @@
 /* generated file, don't edit. */
 
+import { MobilePaymentResultType } from "./MobilePaymentResultType.js"
 export interface MobilePaymentResult {
-	readonly success: boolean
+	readonly result: MobilePaymentResultType
 	readonly transactionID: string | null
 	readonly transactionHash: string | null
 }

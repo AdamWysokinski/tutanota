@@ -2,7 +2,7 @@
 
 
 public struct MobilePaymentResult : Codable {
-	let success: Bool
+	let result: MobilePaymentResultType
 	let transactionID: String?
 	let transactionHash: String?
 }
