@@ -12,7 +12,6 @@ jobs:
     env:
       java-version: 21
       java-distribution: 'temurin'
-      node-version: 20.11.1
       TZ: "Europe/Berlin" # We have some tests for same day alarms that depends on this TimeZone
     permissions:
       actions: none
@@ -31,24 +30,8 @@ jobs:
 
     steps:
       - uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11 #v4.1.1
-      - name: Use Node.js ${{ env.node-version }}
-        uses: actions/setup-node@v3
-        with:
-          node-version: ${{ env.node-version }}
-          cache: 'npm'
-          cache-dependency-path: '**/package-lock.json'
-      - name: Get better-sqlite3 cached location
-        run: |
-          echo "better_sqlite3_path=$(node buildSrc/getNativeCacheLocation.js better-sqlite3)" >> $GITHUB_ENV
-      - name: Try to use cached better-sqlite3
-        uses: actions/cache@v3
-        with:
-          path: ${{ env.better_sqlite3_path }}
-          key: ${{ env.better_sqlite3_path }}
-      - name: Install packages
-        run: npm ci && npm run build-packages
-      - name: Build WebApp
-        run: node webapp
+      - name: Create dummy build folder
+        run: mkdir build # We need this because gradlew lint searches for the app assets
       - name: Set up JDK ${{ env.java-version }}
         uses: actions/setup-java@99b8673ff64fbf99d8d325f52d9a5bdedb8483e9 #4.2.1
         with:
