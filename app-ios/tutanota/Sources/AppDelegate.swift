@@ -1,5 +1,5 @@
-import UIKit
 import StoreKit
+import UIKit
 
 @UIApplicationMain class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterDelegate {
 	var window: UIWindow?
