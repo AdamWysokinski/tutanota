@@ -4,7 +4,8 @@ on:
   push:
     branches-ignore:
       - master
-    paths: [ "app-android/**" ]
+    paths:
+      - 'app-android/**'
 
 jobs:
   test-kotlin:
