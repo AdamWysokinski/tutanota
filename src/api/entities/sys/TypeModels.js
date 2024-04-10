@@ -5416,6 +5416,170 @@ export const typeModels = {
         "app": "sys",
         "version": "99"
     },
+    "GroupKeyRotationData": {
+        "name": "GroupKeyRotationData",
+        "since": 99,
+        "type": "AGGREGATED_TYPE",
+        "id": 2323,
+        "rootId": "A3N5cwAJEw",
+        "versioned": false,
+        "encrypted": false,
+        "values": {
+            "_id": {
+                "final": true,
+                "name": "_id",
+                "id": 2324,
+                "since": 99,
+                "type": "CustomId",
+                "cardinality": "One",
+                "encrypted": false
+            },
+            "adminGroupEncGroupKey": {
+                "final": false,
+                "name": "adminGroupEncGroupKey",
+                "id": 2329,
+                "since": 99,
+                "type": "Bytes",
+                "cardinality": "ZeroOrOne",
+                "encrypted": false
+            },
+            "adminGroupKeyVersion": {
+                "final": false,
+                "name": "adminGroupKeyVersion",
+                "id": 2330,
+                "since": 99,
+                "type": "Number",
+                "cardinality": "ZeroOrOne",
+                "encrypted": false
+            },
+            "groupEncPreviousGroupKey": {
+                "final": false,
+                "name": "groupEncPreviousGroupKey",
+                "id": 2328,
+                "since": 99,
+                "type": "Bytes",
+                "cardinality": "One",
+                "encrypted": false
+            },
+            "groupKeyVersion": {
+                "final": false,
+                "name": "groupKeyVersion",
+                "id": 2327,
+                "since": 99,
+                "type": "Number",
+                "cardinality": "One",
+                "encrypted": false
+            },
+            "userEncGroupKey": {
+                "final": false,
+                "name": "userEncGroupKey",
+                "id": 2325,
+                "since": 99,
+                "type": "Bytes",
+                "cardinality": "One",
+                "encrypted": false
+            },
+            "userKeyVersion": {
+                "final": false,
+                "name": "userKeyVersion",
+                "id": 2326,
+                "since": 99,
+                "type": "Number",
+                "cardinality": "One",
+                "encrypted": false
+            }
+        },
+        "associations": {
+            "group": {
+                "final": false,
+                "name": "group",
+                "id": 2331,
+                "since": 99,
+                "type": "ELEMENT_ASSOCIATION",
+                "cardinality": "One",
+                "refType": "Group",
+                "dependency": null
+            },
+            "keyPair": {
+                "final": false,
+                "name": "keyPair",
+                "id": 2332,
+                "since": 99,
+                "type": "AGGREGATION",
+                "cardinality": "ZeroOrOne",
+                "refType": "KeyPair",
+                "dependency": null
+            }
+        },
+        "app": "sys",
+        "version": "99"
+    },
+    "GroupKeyRotationInfoGetOut": {
+        "name": "GroupKeyRotationInfoGetOut",
+        "since": 99,
+        "type": "DATA_TRANSFER_TYPE",
+        "id": 2337,
+        "rootId": "A3N5cwAJIQ",
+        "versioned": false,
+        "encrypted": false,
+        "values": {
+            "_format": {
+                "final": false,
+                "name": "_format",
+                "id": 2338,
+                "since": 99,
+                "type": "Number",
+                "cardinality": "One",
+                "encrypted": false
+            },
+            "userOrAdminGroupKeyRotationScheduled": {
+                "final": false,
+                "name": "userOrAdminGroupKeyRotationScheduled",
+                "id": 2339,
+                "since": 99,
+                "type": "Boolean",
+                "cardinality": "One",
+                "encrypted": false
+            }
+        },
+        "associations": {},
+        "app": "sys",
+        "version": "99"
+    },
+    "GroupKeyRotationPostIn": {
+        "name": "GroupKeyRotationPostIn",
+        "since": 99,
+        "type": "DATA_TRANSFER_TYPE",
+        "id": 2333,
+        "rootId": "A3N5cwAJHQ",
+        "versioned": false,
+        "encrypted": false,
+        "values": {
+            "_format": {
+                "final": false,
+                "name": "_format",
+                "id": 2334,
+                "since": 99,
+                "type": "Number",
+                "cardinality": "One",
+                "encrypted": false
+            }
+        },
+        "associations": {
+            "groupKeyUpdates": {
+                "final": false,
+                "name": "groupKeyUpdates",
+                "id": 2335,
+                "since": 99,
+                "type": "AGGREGATION",
+                "cardinality": "Any",
+                "refType": "GroupKeyRotationData",
+                "dependency": null
+            }
+        },
+        "app": "sys",
+        "version": "99"
+    },
     "GroupKeysRef": {
         "name": "GroupKeysRef",
         "since": 96,
@@ -6662,9 +6826,9 @@ export const typeModels = {
                 "cardinality": "One",
                 "encrypted": false
             },
-            "groupType": {
+            "groupKeyRotationType": {
                 "final": true,
-                "name": "groupType",
+                "name": "groupKeyRotationType",
                 "id": 2290,
                 "since": 96,
                 "type": "Number",

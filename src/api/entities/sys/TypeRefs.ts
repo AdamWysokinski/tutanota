@@ -1328,6 +1328,51 @@ export type GroupKey = {
 
 	keyPair:  null | KeyPair;
 }
+export const GroupKeyRotationDataTypeRef: TypeRef<GroupKeyRotationData> = new TypeRef("sys", "GroupKeyRotationData")
+
+export function createGroupKeyRotationData(values: StrippedEntity<GroupKeyRotationData>): GroupKeyRotationData {
+	return Object.assign(create(typeModels.GroupKeyRotationData, GroupKeyRotationDataTypeRef), values)
+}
+
+export type GroupKeyRotationData = {
+	_type: TypeRef<GroupKeyRotationData>;
+
+	_id: Id;
+	adminGroupEncGroupKey: null | Uint8Array;
+	adminGroupKeyVersion: null | NumberString;
+	groupEncPreviousGroupKey: Uint8Array;
+	groupKeyVersion: NumberString;
+	userEncGroupKey: Uint8Array;
+	userKeyVersion: NumberString;
+
+	group: Id;
+	keyPair:  null | KeyPair;
+}
+export const GroupKeyRotationInfoGetOutTypeRef: TypeRef<GroupKeyRotationInfoGetOut> = new TypeRef("sys", "GroupKeyRotationInfoGetOut")
+
+export function createGroupKeyRotationInfoGetOut(values: StrippedEntity<GroupKeyRotationInfoGetOut>): GroupKeyRotationInfoGetOut {
+	return Object.assign(create(typeModels.GroupKeyRotationInfoGetOut, GroupKeyRotationInfoGetOutTypeRef), values)
+}
+
+export type GroupKeyRotationInfoGetOut = {
+	_type: TypeRef<GroupKeyRotationInfoGetOut>;
+
+	_format: NumberString;
+	userOrAdminGroupKeyRotationScheduled: boolean;
+}
+export const GroupKeyRotationPostInTypeRef: TypeRef<GroupKeyRotationPostIn> = new TypeRef("sys", "GroupKeyRotationPostIn")
+
+export function createGroupKeyRotationPostIn(values: StrippedEntity<GroupKeyRotationPostIn>): GroupKeyRotationPostIn {
+	return Object.assign(create(typeModels.GroupKeyRotationPostIn, GroupKeyRotationPostInTypeRef), values)
+}
+
+export type GroupKeyRotationPostIn = {
+	_type: TypeRef<GroupKeyRotationPostIn>;
+
+	_format: NumberString;
+
+	groupKeyUpdates: GroupKeyRotationData[];
+}
 export const GroupKeysRefTypeRef: TypeRef<GroupKeysRef> = new TypeRef("sys", "GroupKeysRef")
 
 export function createGroupKeysRef(values: StrippedEntity<GroupKeysRef>): GroupKeysRef {
@@ -1582,7 +1627,7 @@ export type KeyRotation = {
 	_id: IdTuple;
 	_ownerGroup: null | Id;
 	_permissions: Id;
-	groupType: NumberString;
+	groupKeyRotationType: NumberString;
 	targetKeyVersion: NumberString;
 }
 export const KeyRotationsRefTypeRef: TypeRef<KeyRotationsRef> = new TypeRef("sys", "KeyRotationsRef")

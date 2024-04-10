@@ -285,6 +285,16 @@
 					"info": "RemoveValue Customer/canceledPremiumAccount/902."
 				}
 			]
+		},
+		{
+			"version": 99,
+			"changes": [
+				{
+					"name": "RenameAttribute",
+					"sourceType": "KeyRotation",
+					"info": "RenameAttribute KeyRotation: groupType -> groupKeyRotationType."
+				}
+			]
 		}
 	]
 }
