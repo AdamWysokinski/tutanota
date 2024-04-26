@@ -256,7 +256,7 @@ export async function updatePaymentData(
 	paymentData: PaymentData | null,
 	confirmedCountry: Country | null,
 	isSignup: boolean,
-	price: string,
+	price: string | null,
 	accountingInfo: AccountingInfo,
 ): Promise<boolean> {
 	const paymentResult = await locator.customerFacade.updatePaymentData(paymentInterval, invoiceData, paymentData, confirmedCountry)
@@ -266,7 +266,7 @@ export async function updatePaymentData(
 		// show dialog
 		let braintree3ds = paymentResult.braintree3dsRequest
 		if (braintree3ds) {
-			return verifyCreditCard(accountingInfo, braintree3ds, price)
+			return verifyCreditCard(accountingInfo, braintree3ds, price!)
 		} else {
 			return true
 		}
