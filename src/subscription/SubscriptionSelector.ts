@@ -17,10 +17,20 @@ import {
 } from "./FeatureListProvider"
 import { ProgrammingError } from "../api/common/error/ProgrammingError"
 import { Button, ButtonType } from "../gui/base/Button.js"
-import { downcast, lazy } from "@tutao/tutanota-utils"
-import { AvailablePlanType, HighlightedPlans, LegacyPlans, NewBusinessPlans, NewPersonalPlans, PlanType } from "../api/common/TutanotaConstants.js"
+import { assertNonNull, assertNotNull, downcast, lazy, neverNull } from "@tutao/tutanota-utils"
+import {
+	AvailablePlanType,
+	HighlightedPlans,
+	LegacyPlans,
+	NewBusinessPlans,
+	NewPersonalPlans,
+	PlanType,
+	PlanTypeToName,
+} from "../api/common/TutanotaConstants.js"
 import { px } from "../gui/size.js"
 import { LoginButton, LoginButtonAttrs } from "../gui/base/buttons/LoginButton.js"
+import { isIOSApp } from "../api/common/Env"
+import { locator } from "../api/main/MainLocator"
 
 const BusinessUseItems: SegmentControlItem<boolean>[] = [
 	{
@@ -199,22 +209,39 @@ export class SubscriptionSelector implements Component<SubscriptionSelectorAttr>
 		const { priceAndConfigProvider } = selectorAttrs
 
 		// we highlight the center box if this is a signup or the current subscription type is Free
+		const interval = selectorAttrs.options.paymentInterval()
 		const upgradingToPaidAccount = !selectorAttrs.currentPlanType || selectorAttrs.currentPlanType === PlanType.Free
 		const highlighted = upgradingToPaidAccount && HighlightedPlans.includes(targetSubscription)
-		const subscriptionPrice = priceAndConfigProvider.getSubscriptionPrice(
-			selectorAttrs.options.paymentInterval(),
-			targetSubscription,
-			UpgradePriceType.PlanActualPrice,
-		)
+		const subscriptionPrice = priceAndConfigProvider.getSubscriptionPrice(interval, targetSubscription, UpgradePriceType.PlanActualPrice)
 		const multiuser = NewBusinessPlans.includes(targetSubscription) || LegacyPlans.includes(targetSubscription) || selectorAttrs.multipleUsersAllowed
+
+		let price: string
+		if (isIOSApp()) {
+			const prices = priceAndConfigProvider.getMobilePrices().get(PlanTypeToName[targetSubscription])
+			if (prices != null) {
+				switch (interval) {
+					case PaymentInterval.Monthly:
+						price = prices.monthly
+						break
+					case PaymentInterval.Yearly:
+						price = prices.yearly
+						break
+				}
+			} else {
+				price = " "
+			}
+		} else {
+			price = formatMonthlyPrice(subscriptionPrice, interval)
+		}
+
 		return {
 			heading: getDisplayNameOfPlanType(targetSubscription),
 			actionButton:
 				selectorAttrs.currentPlanType === targetSubscription
 					? getActiveSubscriptionActionButtonReplacement()
 					: getActionButtonBySubscription(selectorAttrs.actionButtons, targetSubscription),
-			price: formatMonthlyPrice(subscriptionPrice, selectorAttrs.options.paymentInterval()),
-			priceHint: getPriceHint(subscriptionPrice, selectorAttrs.options.paymentInterval(), multiuser),
+			price,
+			priceHint: getPriceHint(subscriptionPrice, interval, multiuser),
 			helpLabel: getHelpLabel(targetSubscription, selectorAttrs.options.businessUse()),
 			width: selectorAttrs.boxWidth,
 			height: selectorAttrs.boxHeight,
@@ -223,7 +250,7 @@ export class SubscriptionSelector implements Component<SubscriptionSelectorAttr>
 			showReferenceDiscount: selectorAttrs.allowSwitchingPaymentInterval,
 			mobile,
 			bonusMonths:
-				targetSubscription !== PlanType.Free && selectorAttrs.options.paymentInterval() === PaymentInterval.Yearly
+				targetSubscription !== PlanType.Free && interval === PaymentInterval.Yearly
 					? Number(selectorAttrs.priceAndConfigProvider.getRawPricingData().bonusMonthsForYearlyPlan)
 					: 0,
 		}

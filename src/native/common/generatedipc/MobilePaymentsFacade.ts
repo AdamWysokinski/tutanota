@@ -9,4 +9,14 @@ export interface MobilePaymentsFacade {
 	 * Display a pop-up for the user to start a subscription
 	 */
 	requestSubscriptionToPlan(plan: string, interval: number, customerIdBytes: Uint8Array): Promise<MobilePaymentResult>
+
+	/**
+	 * Returns a displayable price for a plan
+	 */
+	getPlanPrice(plan: string, interval: number): Promise<string | null>
+
+	/**
+	 * Returns a displayable price for the current plan
+	 */
+	getCurrentPlanPrice(customerIdBytes: Uint8Array): Promise<string | null>
 }

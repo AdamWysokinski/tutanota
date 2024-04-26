@@ -1,13 +1,15 @@
-import { BookingItemFeatureType, Const, PaymentMethodType, PlanType, PlanTypeToName } from "../api/common/TutanotaConstants"
+import { BookingItemFeatureType, Const, NewPersonalPlans, PaymentMethodType, PlanType, PlanTypeToName } from "../api/common/TutanotaConstants"
 import { assertTranslation, lang, TranslationKey } from "../misc/LanguageViewModel"
 import { assertNotNull, downcast, neverNull } from "@tutao/tutanota-utils"
 import type { AccountingInfo, PlanPrices, PriceData, PriceItemData } from "../api/entities/sys/TypeRefs.js"
-import { createUpgradePriceServiceData, UpgradePriceServiceReturn } from "../api/entities/sys/TypeRefs.js"
+import { createPlanPrices, createUpgradePriceServiceData, UpgradePriceServiceReturn } from "../api/entities/sys/TypeRefs.js"
 import { UpgradePriceType, WebsitePlanPrices } from "./FeatureListProvider"
 import { UpgradePriceService } from "../api/entities/sys/Services"
 import { IServiceExecutor } from "../api/common/ServiceRequest"
 import { ProgrammingError } from "../api/common/error/ProgrammingError.js"
 import { UserError } from "../api/main/UserError.js"
+import { isIOSApp } from "../api/common/Env"
+import { locator } from "../api/main/MainLocator"
 
 export const enum PaymentInterval {
 	Monthly = 1,
@@ -117,6 +119,7 @@ export class PriceAndConfigProvider {
 	private upgradePriceData: UpgradePriceServiceReturn | null = null
 	private planPrices: Array<PlanPrices> | null = null
 	private isReferralCodeSignup: boolean = false
+	private mobilePrices: Map<string, { monthly: string; yearly: string }> | null = null
 
 	private constructor() {}
 
@@ -127,6 +130,18 @@ export class PriceAndConfigProvider {
 			referralCode: referralCode,
 		})
 		this.upgradePriceData = await serviceExecutor.get(UpgradePriceService, data)
+		if (isIOSApp()) {
+			this.mobilePrices = new Map()
+			for (const plan of this.upgradePriceData.plans) {
+				// FIXME: pass this facade in init()
+				const monthly = await locator.mobilePaymentsFacade.getPlanPrice(plan.planName.toLowerCase(), 1)
+				const yearly = await locator.mobilePaymentsFacade.getPlanPrice(plan.planName.toLowerCase(), 12)
+				if (monthly == null || yearly == null) {
+					continue
+				}
+				this.mobilePrices.set(plan.planName, { monthly, yearly })
+			}
+		}
 		this.isReferralCodeSignup = referralCode != null
 		this.planPrices = this.upgradePriceData.plans
 	}
@@ -167,6 +182,10 @@ export class PriceAndConfigProvider {
 	private getMonthlySubscriptionPrice(subscription: PlanType, upgrade: UpgradePriceType): number {
 		const prices = this.getPlanPricesForPlan(subscription)
 		return getPriceForUpgradeType(upgrade, prices)
+	}
+
+	getMobilePrices(): Map<string, { monthly: string; yearly: string }> {
+		return assertNotNull(this.mobilePrices)
 	}
 
 	getPlanPricesForPlan(subscription: PlanType): PlanPrices {

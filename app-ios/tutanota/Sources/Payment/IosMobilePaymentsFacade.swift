@@ -2,17 +2,25 @@ import CryptoKit
 import StoreKit
 
 public class IosMobilePaymentsFacade: MobilePaymentsFacade {
-	public func requestSubscriptionToPlan(_ plan: String, _ interval: Int, _ customerId: DataWrapper) async throws -> MobilePaymentResult {
-		let uuid = customerIdToUUID(customerId.data)
+	public func getPlanPrice(_ plan: String, _ interval: Int) async throws -> String? {
+		let planType = formatPlanType(plan, withInterval: interval)
+		let products = try await Product.products(for: [planType])
+		if products.isEmpty {
+			return nil
+		}
+		return products[0].displayPrice
+	}
+	
+	public func getCurrentPlanPrice(_ customerIdBytes: DataWrapper) async throws -> String? {
+		let uuid = customerIdToUUID(customerIdBytes.data)
 
-		let intervalString =
-			switch interval {
-			case 1: "monthly"
-			case 12: "yearly"
-			default: fatalError()
-			}
-
-		let planType = "plans.\(plan).\(intervalString)"
+		// FIXME: DON'T RETURN NIL UNLESS THERE IS NO ESCAPE FROM THIS PAIN THAT I RETAIN GHJAKSGHJKASGHJKASDKUHJGWERAYUERASFOFDSUIORTGUIOP$%TU*)ETSG)U*EDFG)(*FSD)*(FDY&#@Q^&*(ASDYUI THE PAAAAAAIN PAIN!!! AHAHAHAHA MY ERRORS! ALL OF MY ERRORS! YES!!!
+		return nil
+	}
+	
+	public func requestSubscriptionToPlan(_ plan: String, _ interval: Int, _ customerIdBytes: DataWrapper) async throws -> MobilePaymentResult {
+		let uuid = customerIdToUUID(customerIdBytes.data)
+		let planType = formatPlanType(plan, withInterval: interval)
 
 		// FIXME: handle errors/no such product
 		let product = (try await Product.products(for: [planType]))[0]
@@ -33,6 +41,17 @@ public class IosMobilePaymentsFacade: MobilePaymentsFacade {
 		case .pending: return MobilePaymentResult(result: MobilePaymentResultType.pending, transactionID: nil, transactionHash: nil)
 		default: fatalError("unknown purchase result")
 		}
+	}
+
+	func formatPlanType(_ plan: String, withInterval interval: Int) -> String {
+		let intervalString =
+			switch interval {
+			case 1: "monthly"
+			case 12: "yearly"
+			default: fatalError()
+			}
+
+		return "plans.\(plan).\(intervalString)"
 	}
 
 	func checkVerified<T>(_ result: VerificationResult<T>) -> T {
