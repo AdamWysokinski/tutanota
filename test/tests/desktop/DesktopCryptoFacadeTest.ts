@@ -2,10 +2,10 @@ import n from "../nodemocker.js"
 import o from "@tutao/otest"
 import { DesktopNativeCryptoFacade } from "../../../src/desktop/DesktopNativeCryptoFacade.js"
 import { downcast, stringToUtf8Uint8Array } from "@tutao/tutanota-utils"
-import type { CryptoFunctions } from "../../../src/desktop/CryptoFns.js"
 import { keyToUint8Array, uint8ArrayToBitArray } from "@tutao/tutanota-crypto"
 import { matchers, object, verify, when } from "testdouble"
 import { TempFs } from "../../../src/desktop/files/TempFs.js"
+import { CryptoFunctions } from "../../../src/api/common/CryptoFunctions.js"
 
 o.spec("DesktopCryptoFacadeTest", () => {
 	const data = Buffer.from([42])

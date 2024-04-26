@@ -1,5 +1,4 @@
 import { base64ToBase64Url, base64ToUint8Array, stringToUtf8Uint8Array, uint8ArrayToBase64, utf8Uint8ArrayToString } from "@tutao/tutanota-utils"
-import type { CryptoFunctions } from "./CryptoFns.js"
 import type { TypeModel } from "../api/common/EntityTypes.js"
 import type * as FsModule from "node:fs"
 import { Aes256Key, bitArrayToUint8Array, generateKeyFromPassphraseArgon2id, uint8ArrayToKey } from "@tutao/tutanota-crypto"
@@ -15,6 +14,7 @@ import { KyberKeyPair } from "../native/common/generatedipc/KyberKeyPair.js"
 import { KyberPublicKey } from "../native/common/generatedipc/KyberPublicKey.js"
 import { KyberEncapsulation } from "../native/common/generatedipc/KyberEncapsulation.js"
 import { KyberPrivateKey } from "../native/common/generatedipc/KyberPrivateKey.js"
+import { CryptoFunctions } from "../api/common/CryptoFunctions.js"
 
 type FsExports = typeof FsModule
 

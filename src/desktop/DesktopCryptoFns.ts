@@ -1,5 +1,5 @@
 /**
- * This is a wrapper for commonly used crypto functions, easier to inject/swap implementations and test.
+ * Node-dependant implementation of CryptoFunctions
  */
 import crypto from "node:crypto"
 import { InstanceMapper } from "../api/worker/crypto/InstanceMapper"
@@ -17,6 +17,7 @@ import {
 	uint8ArrayToKey,
 	unauthenticatedAesDecrypt,
 } from "@tutao/tutanota-crypto"
+import { CryptoFunctions } from "../api/common/CryptoFunctions.js"
 
 // the prng throws if it doesn't have enough entropy
 // it may be called very early, so we need to seed it
@@ -37,30 +38,8 @@ const seed = () => {
 
 seed()
 
-export interface CryptoFunctions {
-	aesEncrypt(key: AesKey, bytes: Uint8Array, iv?: Uint8Array, usePadding?: boolean, useMac?: boolean): Uint8Array
-
-	aesDecrypt(key: AesKey, encryptedBytes: Uint8Array, usePadding: boolean): Uint8Array
-
-	unauthenticatedAesDecrypt(key: Aes256Key, encryptedBytes: Uint8Array, usePadding: boolean): Uint8Array
-
-	decryptKey(encryptionKey: AesKey, key: Uint8Array): AesKey
-
-	bytesToKey(bytes: Uint8Array): BitArray
-
-	base64ToKey(base64: Base64): BitArray
-
-	verifySignature(pubKeyPem: string, data: Uint8Array, signature: Uint8Array): boolean
-
-	randomBytes(nbrOfBytes: number): Uint8Array
-
-	aes256RandomKey(): Aes256Key
-
-	decryptAndMapToInstance<T>(model: TypeModel, instance: Record<string, any>, sk: AesKey | null): Promise<T>
-}
-
 const mapper = new InstanceMapper()
-export const cryptoFns: CryptoFunctions = {
+export const desktopCryptoFns: CryptoFunctions = {
 	aesEncrypt(key: AesKey, bytes: Uint8Array, iv?: Uint8Array, usePadding?: boolean, useMac?: boolean): Uint8Array {
 		return aesEncrypt(key, bytes, iv, usePadding, useMac)
 	},

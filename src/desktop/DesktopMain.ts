@@ -24,7 +24,7 @@ import { DesktopIntegrator, getDesktopIntegratorForPlatform } from "./integratio
 import net from "node:net"
 import child_process from "node:child_process"
 import { LocalShortcutManager } from "./electron-localshortcut/LocalShortcut"
-import { cryptoFns } from "./CryptoFns"
+import { desktopCryptoFns } from "./DesktopCryptoFns.js"
 import { DesktopConfigMigrator } from "./config/migrations/DesktopConfigMigrator"
 import { DesktopKeyStoreFacade } from "./DesktopKeyStoreFacade.js"
 import { AlarmScheduler } from "../calendar/date/AlarmScheduler.js"
@@ -90,7 +90,7 @@ type Components = {
 	readonly desktopThemeFacade: DesktopThemeFacade
 	readonly credentialsEncryption: NativeCredentialsFacade
 }
-const tfs = new TempFs(fs, electron, cryptoFns)
+const tfs = new TempFs(fs, electron, desktopCryptoFns)
 const desktopUtils = new DesktopUtils(process.argv, tfs, electron)
 const wasmLoader = async () => {
 	const wasmSourcePath = path.join(electron.app.getAppPath(), "wasm/argon2.wasm")
@@ -98,7 +98,7 @@ const wasmLoader = async () => {
 	const { exports } = (await WebAssembly.instantiate(wasmSource)).instance
 	return exports
 }
-const desktopCrypto = new DesktopNativeCryptoFacade(fs, cryptoFns, tfs, wasmLoader())
+const desktopCrypto = new DesktopNativeCryptoFacade(fs, desktopCryptoFns, tfs, wasmLoader())
 const opts = {
 	registerAsMailHandler: process.argv.some((arg) => arg === "-r"),
 	unregisterAsMailHandler: process.argv.some((arg) => arg === "-u"),
