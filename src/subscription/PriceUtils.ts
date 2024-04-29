@@ -10,6 +10,7 @@ import { ProgrammingError } from "../api/common/error/ProgrammingError.js"
 import { UserError } from "../api/main/UserError.js"
 import { isIOSApp } from "../api/common/Env"
 import { locator } from "../api/main/MainLocator"
+import { MobilePlanPrice } from "../native/common/generatedipc/MobilePlanPrice"
 
 export const enum PaymentInterval {
 	Monthly = 1,
@@ -60,7 +61,7 @@ export function getPaymentMethodInfoText(accountingInfo: AccountingInfo): string
 }
 
 export function formatPriceDataWithInfo(priceData: PriceData): string {
-	return formatPriceWithInfo(Number(priceData.price), asPaymentInterval(priceData.paymentInterval), priceData.taxIncluded)
+	return formatPriceWithInfo(formatPrice(Number(priceData.price), true), asPaymentInterval(priceData.paymentInterval), priceData.taxIncluded)
 }
 
 // Used on website, keep it in sync
@@ -83,10 +84,9 @@ export function formatMonthlyPrice(subscriptionPrice: number, paymentInterval: P
 	return formatPrice(monthlyPrice, true)
 }
 
-export function formatPriceWithInfo(price: number, paymentInterval: PaymentInterval, taxIncluded: boolean): string {
+export function formatPriceWithInfo(formattedPrice: string, paymentInterval: PaymentInterval, taxIncluded: boolean): string {
 	const netOrGross = taxIncluded ? lang.get("gross_label") : lang.get("net_label")
 	const yearlyOrMonthly = paymentInterval === PaymentInterval.Yearly ? lang.get("pricing.perYear_label") : lang.get("pricing.perMonth_label")
-	const formattedPrice = formatPrice(price, true)
 	return `${formattedPrice} ${yearlyOrMonthly} (${netOrGross})`
 }
 
@@ -119,7 +119,7 @@ export class PriceAndConfigProvider {
 	private upgradePriceData: UpgradePriceServiceReturn | null = null
 	private planPrices: Array<PlanPrices> | null = null
 	private isReferralCodeSignup: boolean = false
-	private mobilePrices: Map<string, { monthly: string; yearly: string }> | null = null
+	private mobilePrices: Map<string, { monthly: MobilePlanPrice; yearly: MobilePlanPrice }> | null = null
 
 	private constructor() {}
 
@@ -167,6 +167,25 @@ export class PriceAndConfigProvider {
 			: this.getMonthlySubscriptionPrice(subscription, type)
 	}
 
+	getSubscriptionPriceWithCurrency(paymentInterval: PaymentInterval, subscription: PlanType, type: UpgradePriceType): string {
+		if (isIOSApp()) {
+			const planName = PlanTypeToName[subscription]
+			const mobilePlan = this.getMobilePrices().get(planName)
+			if (mobilePlan) {
+				switch (paymentInterval) {
+					case PaymentInterval.Monthly:
+						return mobilePlan.monthly.perIntervalPrice
+					case PaymentInterval.Yearly:
+						return mobilePlan.yearly.perIntervalPrice
+				}
+			}
+			throw new Error(`no such iOS plan ${planName}`)
+		}
+
+		const price = this.getSubscriptionPrice(paymentInterval, subscription, type)
+		return formatPrice(price, true)
+	}
+
 	getRawPricingData(): UpgradePriceServiceReturn {
 		return assertNotNull(this.upgradePriceData)
 	}
@@ -184,7 +203,7 @@ export class PriceAndConfigProvider {
 		return getPriceForUpgradeType(upgrade, prices)
 	}
 
-	getMobilePrices(): Map<string, { monthly: string; yearly: string }> {
+	getMobilePrices(): Map<string, { monthly: MobilePlanPrice; yearly: MobilePlanPrice }> {
 		return assertNotNull(this.mobilePrices)
 	}
 

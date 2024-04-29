@@ -264,6 +264,7 @@
 		3DAA23A9267A208200219051 /* UIColorExtensionsTest.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3DAA23A8267A208200219051 /* UIColorExtensionsTest.swift */; };
 		3DAED2AF29A6267D00806DEA /* NotificationsHandler.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3DAED2AE29A6267D00806DEA /* NotificationsHandler.swift */; };
 		3DB07C7B27303F0600BFBB4D /* Keys.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3DB07C7A27303F0600BFBB4D /* Keys.swift */; };
+		3DB4B4E32BDFC0E300265887 /* MobilePlanPrice.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3DB4B4E22BDFC0E300265887 /* MobilePlanPrice.swift */; };
 		3DBE94BA273147830077A6EA /* RemoteBridge.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3DBE94B9273147830077A6EA /* RemoteBridge.swift */; };
 		3DC299FA267358AF00E1E79F /* ThemeManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3DC299F9267358AF00E1E79F /* ThemeManager.swift */; };
 		3DC299FD2673668000E1E79F /* QueryUtils.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3DC299FC2673668000E1E79F /* QueryUtils.swift */; };
@@ -601,6 +602,7 @@
 		3DAA23A8267A208200219051 /* UIColorExtensionsTest.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UIColorExtensionsTest.swift; sourceTree = "<group>"; };
 		3DAED2AE29A6267D00806DEA /* NotificationsHandler.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NotificationsHandler.swift; sourceTree = "<group>"; };
 		3DB07C7A27303F0600BFBB4D /* Keys.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Keys.swift; sourceTree = "<group>"; };
+		3DB4B4E22BDFC0E300265887 /* MobilePlanPrice.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = MobilePlanPrice.swift; sourceTree = "<group>"; };
 		3DBE94B9273147830077A6EA /* RemoteBridge.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RemoteBridge.swift; sourceTree = "<group>"; };
 		3DC299F9267358AF00E1E79F /* ThemeManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ThemeManager.swift; sourceTree = "<group>"; };
 		3DC299FC2673668000E1E79F /* QueryUtils.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = QueryUtils.swift; sourceTree = "<group>"; };
@@ -842,6 +844,7 @@
 				3D246DC92BA99A5F00F5B3BE /* MobilePaymentResult.swift */,
 				3D246DA82BA99A5E00F5B3BE /* MobilePaymentsFacade.swift */,
 				3D246DC22BA99A5F00F5B3BE /* MobilePaymentsFacadeReceiveDispatcher.swift */,
+				3DB4B4E22BDFC0E300265887 /* MobilePlanPrice.swift */,
 				3D246D9C2BA99A5E00F5B3BE /* MobileSystemFacade.swift */,
 				3D246DBA2BA99A5F00F5B3BE /* MobileSystemFacadeReceiveDispatcher.swift */,
 				3D246DB82BA99A5F00F5B3BE /* NativeCredentialsFacade.swift */,
@@ -2375,6 +2378,7 @@
 				3D0E44B62B3C3CE500F933A1 /* kem_kyber_1024.c in Sources */,
 				3D648B262AB98BEA00893C8D /* blake2b.c in Sources */,
 				3D648B212AB98BEA00893C8D /* thread.c in Sources */,
+				3DB4B4E32BDFC0E300265887 /* MobilePlanPrice.swift in Sources */,
 				3D246E022BA99A6000F5B3BE /* KyberKeyPair.swift in Sources */,
 				3D648B2C2AB98BEA00893C8D /* argon2.c in Sources */,
 				3D648B2D2AB98BEA00893C8D /* encoding.c in Sources */,

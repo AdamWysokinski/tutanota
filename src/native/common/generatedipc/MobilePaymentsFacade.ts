@@ -1,6 +1,7 @@
 /* generated file, don't edit. */
 
 import { MobilePaymentResult } from "./MobilePaymentResult.js"
+import { MobilePlanPrice } from "./MobilePlanPrice.js"
 /**
  * Operations for handling mobile payments.
  */
@@ -13,7 +14,7 @@ export interface MobilePaymentsFacade {
 	/**
 	 * Returns a displayable price for a plan
 	 */
-	getPlanPrice(plan: string, interval: number): Promise<string | null>
+	getPlanPrice(plan: string, interval: number): Promise<MobilePlanPrice | null>
 
 	/**
 	 * Returns a displayable price for the current plan

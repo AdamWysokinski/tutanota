@@ -21,7 +21,7 @@ public protocol MobilePaymentsFacade {
 	func getPlanPrice(
 		_ plan: String,
 		_ interval: Int
-	) async throws -> String?
+	) async throws -> MobilePlanPrice?
 	/**
 	 * Returns a displayable price for the current plan
 	 */

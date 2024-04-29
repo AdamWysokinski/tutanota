@@ -30,7 +30,7 @@
 					"interval": "number"
 				}
 			],
-			"ret": "string?"
+			"ret": "MobilePlanPrice?"
 		},
 		"getCurrentPlanPrice": {
 			"doc": "Returns a displayable price for the current plan",

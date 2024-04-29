@@ -5,7 +5,7 @@ import type { BuyOptionBoxAttr, BuyOptionDetailsAttr } from "./BuyOptionBox"
 import { BOX_MARGIN, BuyOptionBox, BuyOptionDetails, getActiveSubscriptionActionButtonReplacement } from "./BuyOptionBox"
 import type { SegmentControlItem } from "../gui/base/SegmentControl"
 import { SegmentControl } from "../gui/base/SegmentControl"
-import { formatMonthlyPrice, PaymentInterval, PriceAndConfigProvider } from "./PriceUtils"
+import { formatMonthlyPrice, formatPrice, PaymentInterval, PriceAndConfigProvider } from "./PriceUtils"
 import {
 	FeatureCategory,
 	FeatureListItem,
@@ -17,7 +17,7 @@ import {
 } from "./FeatureListProvider"
 import { ProgrammingError } from "../api/common/error/ProgrammingError"
 import { Button, ButtonType } from "../gui/base/Button.js"
-import { assertNonNull, assertNotNull, downcast, lazy, neverNull } from "@tutao/tutanota-utils"
+import { NBSP, assertNonNull, assertNotNull, downcast, lazy, neverNull } from "@tutao/tutanota-utils"
 import {
 	AvailablePlanType,
 	HighlightedPlans,
@@ -111,7 +111,7 @@ export class SubscriptionSelector implements Component<SubscriptionSelectorAttr>
 		const onlyBusinessPlansAccepted = acceptedPlans.every((plan) => NewBusinessPlans.includes(plan))
 		const onlyPersonalPlansAccepted = acceptedPlans.every((plan) => NewPersonalPlans.includes(plan))
 		// Show the business segmentControl for signup, if both personal & business plans are allowed
-		const showBusinessSelector = !onlyBusinessPlansAccepted && !onlyPersonalPlansAccepted
+		const showBusinessSelector = !onlyBusinessPlansAccepted && !onlyPersonalPlansAccepted && !isIOSApp()
 
 		let subscriptionPeriodInfoMsg = !signup && currentPlan !== PlanType.Free ? lang.get("switchSubscriptionInfo_msg") + " " : ""
 		if (vnode.attrs.options.businessUse()) {
@@ -221,14 +221,14 @@ export class SubscriptionSelector implements Component<SubscriptionSelectorAttr>
 			if (prices != null) {
 				switch (interval) {
 					case PaymentInterval.Monthly:
-						price = prices.monthly
+						price = prices.monthly.perMonthPrice
 						break
 					case PaymentInterval.Yearly:
-						price = prices.yearly
+						price = prices.yearly.perMonthPrice
 						break
 				}
 			} else {
-				price = " "
+				price = NBSP
 			}
 		} else {
 			price = formatMonthlyPrice(subscriptionPrice, interval)

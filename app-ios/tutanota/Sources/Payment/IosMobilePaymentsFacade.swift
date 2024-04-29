@@ -2,13 +2,26 @@ import CryptoKit
 import StoreKit
 
 public class IosMobilePaymentsFacade: MobilePaymentsFacade {
-	public func getPlanPrice(_ plan: String, _ interval: Int) async throws -> String? {
+	public func getPlanPrice(_ plan: String, _ interval: Int) async throws -> MobilePlanPrice? {
 		let planType = formatPlanType(plan, withInterval: interval)
 		let products = try await Product.products(for: [planType])
 		if products.isEmpty {
 			return nil
 		}
-		return products[0].displayPrice
+
+		let product = products[0]
+
+		switch interval {
+		// If showing a yearly interval, convert to monthly price to show the user which costs less overall per month.
+		case 12:
+			var formatStyle = product.priceFormatStyle
+			var priceDivided = product.price / 12
+			return MobilePlanPrice(perMonthPrice: priceDivided.formatted(formatStyle), perIntervalPrice: product.displayPrice)
+		case 1:
+			return MobilePlanPrice(perMonthPrice: product.displayPrice, perIntervalPrice: product.displayPrice)
+		default:
+			fatalError("unsupported interval \(interval)")
+		}
 	}
 	
 	public func getCurrentPlanPrice(_ customerIdBytes: DataWrapper) async throws -> String? {
