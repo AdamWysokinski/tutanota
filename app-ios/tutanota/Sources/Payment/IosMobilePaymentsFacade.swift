@@ -24,11 +24,10 @@ public class IosMobilePaymentsFacade: MobilePaymentsFacade {
 		}
 	}
 	
-	public func getCurrentPlanPrice(_ customerIdBytes: DataWrapper) async throws -> String? {
-		let uuid = customerIdToUUID(customerIdBytes.data)
-
-		// FIXME: DON'T RETURN NIL UNLESS THERE IS NO ESCAPE FROM THIS PAIN THAT I RETAIN GHJAKSGHJKASGHJKASDKUHJGWERAYUERASFOFDSUIORTGUIOP$%TU*)ETSG)U*EDFG)(*FSD)*(FDY&#@Q^&*(ASDYUI THE PAAAAAAIN PAIN!!! AHAHAHAHA MY ERRORS! ALL OF MY ERRORS! YES!!!
-		return nil
+	public func showSubscriptionConfigView() async throws {
+		// FIXME: Fix deprecated stuff
+		let window = await UIApplication.shared.keyWindow!.windowScene!
+		try await AppStore.showManageSubscriptions(in: window)
 	}
 	
 	public func requestSubscriptionToPlan(_ plan: String, _ interval: Int, _ customerIdBytes: DataWrapper) async throws -> MobilePaymentResult {

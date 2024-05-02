@@ -32,14 +32,10 @@
 			],
 			"ret": "MobilePlanPrice?"
 		},
-		"getCurrentPlanPrice": {
-			"doc": "Returns a displayable price for the current plan",
-			"arg": [
-				{
-					"customerIdBytes": "bytes"
-				}
-			],
-			"ret": "string?"
+		"showSubscriptionConfigView": {
+			"doc": "Display a view for the user to configure their subscription.",
+			"arg": [],
+			"ret": "void"
 		}
 	}
 }

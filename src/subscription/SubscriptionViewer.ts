@@ -1,5 +1,5 @@
 import m, { Children } from "mithril"
-import { assertMainOrNode } from "../api/common/Env"
+import { assertMainOrNode, isIOSApp } from "../api/common/Env"
 import {
 	AccountType,
 	AccountTypeNames,
@@ -128,8 +128,11 @@ export class SubscriptionViewer implements UpdatableSettingsViewer {
 							: !this._isCancelled
 							? m(IconButton, {
 									title: "subscription_label",
-									click: () => {
-										if (this._accountingInfo && this._customer && this._customerInfo && this._lastBooking) {
+									click: async () => {
+										if (isIOSApp()) {
+											// FIXME: refactor mobilePaymentsFacade to constructor
+											await locator.mobilePaymentsFacade.showSubscriptionConfigView()
+										} else if (this._accountingInfo && this._customer && this._customerInfo && this._lastBooking) {
 											showSwitchDialog(this._customer, this._customerInfo, this._accountingInfo, this._lastBooking, AvailablePlans, null)
 										}
 									},
@@ -279,32 +282,11 @@ export class SubscriptionViewer implements UpdatableSettingsViewer {
 	}
 
 	private showPriceData(): boolean {
-		return locator.logins.getUserController().isPremiumAccount()
+		return locator.logins.getUserController().isPremiumAccount() && !isIOSApp()
 	}
 
 	private async updatePriceInfo(): Promise<void> {
 		if (!this.showPriceData()) {
-			return
-		}
-
-		// FIXME: Use the accountingInfo we already get
-		const customerId = neverNull(locator.logins.getUserController().user.customer)
-		const accountingInfo = await locator.entityClient
-			.load(CustomerTypeRef, customerId)
-			.then((customer) => {
-				this.updateCustomerData(customer)
-				return locator.logins.getUserController().loadCustomerInfo()
-			})
-			.then((customerInfo) => {
-				this._customerInfo = customerInfo
-				return locator.entityClient.load(AccountingInfoTypeRef, customerInfo.accountingInfo)
-			})
-
-		if (accountingInfo.paymentMethod === PaymentMethodType.AppStore) {
-			// FIXME: make mobilePaymentsFacade passed in with the constructor
-			const amount = await locator.mobilePaymentsFacade.getCurrentPlanPrice(base64ToUint8Array(base64ExtToBase64(customerId)))
-			this._currentPriceFieldValue(amount ?? "FREE TUTA!!!! ;)") // FIXME: add a proper text here that says something about not being able to access the price @ app store
-			m.redraw()
 			return
 		}
 
@@ -502,6 +484,10 @@ export class SubscriptionViewer implements UpdatableSettingsViewer {
 	}
 
 	private renderIntervals() {
+		if (isIOSApp()) {
+			return
+		}
+
 		const subscriptionPeriods: SelectorItemList<PaymentInterval | null> = [
 			{
 				name: lang.get("pricing.yearly_label"),

@@ -28,12 +28,10 @@ public class MobilePaymentsFacadeReceiveDispatcher {
 				interval
 			)
 			return toJson(result)
-		case "getCurrentPlanPrice":
-			let customerIdBytes = try! JSONDecoder().decode(DataWrapper.self, from: arg[0].data(using: .utf8)!)
-			let result = try await self.facade.getCurrentPlanPrice(
-				customerIdBytes
+		case "showSubscriptionConfigView":
+			try await self.facade.showSubscriptionConfigView(
 			)
-			return toJson(result)
+			return "null"
 		default:
 			fatalError("licc messed up! \(method)")
 		}
