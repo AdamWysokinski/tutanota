@@ -27,4 +27,10 @@ public protocol MobilePaymentsFacade {
 	 */
 	func showSubscriptionConfigView(
 	) async throws -> Void
+	/**
+	 * Check if the latest transaction using the current Store Account belongs to the user
+	 */
+	func checkLastTransactionOwner(
+		_ customerIdBytes: DataWrapper
+	) async throws -> Bool
 }

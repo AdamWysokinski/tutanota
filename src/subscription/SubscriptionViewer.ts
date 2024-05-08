@@ -24,7 +24,7 @@ import {
 	OrderProcessingAgreementTypeRef,
 	UserTypeRef,
 } from "../api/entities/sys/TypeRefs.js"
-import { assertNotNull, downcast, incrementDate, neverNull, promiseMap } from "@tutao/tutanota-utils"
+import { assertNotNull, base64ExtToBase64, base64ToUint8Array, downcast, incrementDate, neverNull, promiseMap } from "@tutao/tutanota-utils"
 import { lang, TranslationKey } from "../misc/LanguageViewModel"
 import { Icons } from "../gui/base/icons/Icons"
 import { asPaymentInterval, formatPrice, formatPriceDataWithInfo, PaymentInterval } from "./PriceUtils"
@@ -131,13 +131,14 @@ export class SubscriptionViewer implements UpdatableSettingsViewer {
 							? m(IconButton, {
 									title: "subscription_label",
 									click: async () => {
-										if (isIOSApp()) {
-											// FIXME: refactor mobilePaymentsFacade to constructor
-											await locator.mobilePaymentsFacade.showSubscriptionConfigView()
-										} else if (isAppStorePayment) {
-											Dialog.message(() => "Store made subscriptions should be directly managed in the store").then(() => {
-												window.open("https://apps.apple.com/account/subscriptions", "_blank")
-											})
+										if (isAppStorePayment) {
+											if (!isIOSApp()) {
+												return Dialog.message(() => "Store made subscriptions should be directly managed in the store").then(() => {
+													window.open("https://apps.apple.com/account/subscriptions", "_blank")
+												})
+											}
+
+											this.handleAppStoreSubscriptionChange()
 										} else if (this._accountingInfo && this._customer && this._customerInfo && this._lastBooking) {
 											showSwitchDialog(this._customer, this._customerInfo, this._accountingInfo, this._lastBooking, AvailablePlans, null)
 										}
@@ -252,6 +253,20 @@ export class SubscriptionViewer implements UpdatableSettingsViewer {
 		this._selectedSubscriptionInterval = stream<PaymentInterval | null>(null)
 
 		this.updateBookings()
+	}
+
+	private async handleAppStoreSubscriptionChange() {
+		// FIXME: refactor mobilePaymentsFacade to constructor
+		const isSameOwner = await locator.mobilePaymentsFacade.checkLastTransactionOwner(base64ToUint8Array(base64ExtToBase64(this._customer!._id)))
+
+		// Show a dialog only if the user's Apple account's last transaction was with this customer ID
+		//
+		// This prevents the user from accidentally changing a subscription that they don't own
+		if (!isSameOwner) {
+			return Dialog.message(() => "YOU SHALL NOT PASS!")
+		}
+
+		await locator.mobilePaymentsFacade.showSubscriptionConfigView()
 	}
 
 	private showOrderAgreement(): boolean {

@@ -36,6 +36,15 @@
 			"doc": "Display a view for the user to configure their subscription.",
 			"arg": [],
 			"ret": "void"
+		},
+		"checkLastTransactionOwner": {
+			"doc": "Check if the latest transaction using the current Store Account belongs to the user",
+			"arg": [
+				{
+					"customerIdBytes": "bytes"
+				}
+			],
+			"ret": "boolean"
 		}
 	}
 }

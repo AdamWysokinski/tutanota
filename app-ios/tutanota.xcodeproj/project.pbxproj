@@ -383,7 +383,6 @@
 		3D220204293F75C100366FD2 /* IosWebauthnFacade.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = IosWebauthnFacade.swift; sourceTree = "<group>"; };
 		3D239301287EC96200DD7396 /* CustomSchemeHandlers.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CustomSchemeHandlers.swift; sourceTree = "<group>"; };
 		3D246D8F2BA883E400F5B3BE /* StoreKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = StoreKit.framework; path = System/Library/Frameworks/StoreKit.framework; sourceTree = SDKROOT; };
-		3D246D912BA885D300F5B3BE /* Plans.storekit */ = {isa = PBXFileReference; lastKnownFileType = text; path = Plans.storekit; sourceTree = "<group>"; };
 		3D246D922BA99A5E00F5B3BE /* SqlCipherFacade.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SqlCipherFacade.swift; sourceTree = "<group>"; };
 		3D246D932BA99A5E00F5B3BE /* NativePushFacadeReceiveDispatcher.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = NativePushFacadeReceiveDispatcher.swift; sourceTree = "<group>"; };
 		3D246D942BA99A5E00F5B3BE /* SqlCipherFacadeReceiveDispatcher.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SqlCipherFacadeReceiveDispatcher.swift; sourceTree = "<group>"; };
@@ -603,6 +602,7 @@
 		3DAED2AE29A6267D00806DEA /* NotificationsHandler.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NotificationsHandler.swift; sourceTree = "<group>"; };
 		3DB07C7A27303F0600BFBB4D /* Keys.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Keys.swift; sourceTree = "<group>"; };
 		3DB4B4E22BDFC0E300265887 /* MobilePlanPrice.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = MobilePlanPrice.swift; sourceTree = "<group>"; };
+		3DBD55422BF2074700E98853 /* Plans.storekit */ = {isa = PBXFileReference; lastKnownFileType = text; path = Plans.storekit; sourceTree = "<group>"; };
 		3DBE94B9273147830077A6EA /* RemoteBridge.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RemoteBridge.swift; sourceTree = "<group>"; };
 		3DC299F9267358AF00E1E79F /* ThemeManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ThemeManager.swift; sourceTree = "<group>"; };
 		3DC299FC2673668000E1E79F /* QueryUtils.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = QueryUtils.swift; sourceTree = "<group>"; };
@@ -1600,7 +1600,7 @@
 		3DD4A07A20F8C6240086EB36 = {
 			isa = PBXGroup;
 			children = (
-				3D246D912BA885D300F5B3BE /* Plans.storekit */,
+				3DBD55422BF2074700E98853 /* Plans.storekit */,
 				3DEA43302B6D1E2E0037F318 /* lint.sh */,
 				3DD4A08520F8C6240086EB36 /* tutanota */,
 				3DD4A09E20F8C6260086EB36 /* tutanotaTests */,

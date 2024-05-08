@@ -32,6 +32,12 @@ public class MobilePaymentsFacadeReceiveDispatcher {
 			try await self.facade.showSubscriptionConfigView(
 			)
 			return "null"
+		case "checkLastTransactionOwner":
+			let customerIdBytes = try! JSONDecoder().decode(DataWrapper.self, from: arg[0].data(using: .utf8)!)
+			let result = try await self.facade.checkLastTransactionOwner(
+				customerIdBytes
+			)
+			return toJson(result)
 		default:
 			fatalError("licc messed up! \(method)")
 		}

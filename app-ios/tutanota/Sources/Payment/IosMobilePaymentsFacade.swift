@@ -2,6 +2,20 @@ import CryptoKit
 import StoreKit
 
 public class IosMobilePaymentsFacade: MobilePaymentsFacade {
+	public func checkLastTransactionOwner(_ customerIdBytes: DataWrapper) async throws -> Bool {
+		var transactions = Transaction.all.makeAsyncIterator()
+		
+		return try await Transaction.all.contains { transaction in
+			let transactionInfo = try transaction.payloadValue
+			let uuid = customerIdToUUID(customerIdBytes.data)
+			let isSameOwner = transactionInfo.appAccountToken == uuid
+			
+			TUTSLog("Checking transactions: \(transactionInfo.appAccountToken) \(uuid) \(isSameOwner)")
+			
+			return isSameOwner
+		}
+	}
+
 	public func getPlanPrice(_ plan: String, _ interval: Int) async throws -> MobilePlanPrice? {
 		let planType = formatPlanType(plan, withInterval: interval)
 		let products = try await Product.products(for: [planType])
@@ -25,7 +39,6 @@ public class IosMobilePaymentsFacade: MobilePaymentsFacade {
 	}
 	
 	public func showSubscriptionConfigView() async throws {
-		// FIXME: Fix deprecated stuff
 		let window = await UIApplication.shared.keyWindow!.windowScene!
 		try await AppStore.showManageSubscriptions(in: window)
 	}
