@@ -3,15 +3,10 @@ import StoreKit
 
 public class IosMobilePaymentsFacade: MobilePaymentsFacade {
 	public func checkLastTransactionOwner(_ customerIdBytes: DataWrapper) async throws -> Bool {
-		var transactions = Transaction.all.makeAsyncIterator()
-		
-		return try await Transaction.all.contains { transaction in
+		try await Transaction.all.contains { transaction in
 			let transactionInfo = try transaction.payloadValue
 			let uuid = customerIdToUUID(customerIdBytes.data)
 			let isSameOwner = transactionInfo.appAccountToken == uuid
-			
-			TUTSLog("Checking transactions: \(transactionInfo.appAccountToken) \(uuid) \(isSameOwner)")
-			
 			return isSameOwner
 		}
 	}
@@ -19,30 +14,24 @@ public class IosMobilePaymentsFacade: MobilePaymentsFacade {
 	public func getPlanPrice(_ plan: String, _ interval: Int) async throws -> MobilePlanPrice? {
 		let planType = formatPlanType(plan, withInterval: interval)
 		let products = try await Product.products(for: [planType])
-		if products.isEmpty {
-			return nil
-		}
+		if products.isEmpty { return nil }
 
 		let product = products[0]
 
 		switch interval {
 		// If showing a yearly interval, convert to monthly price to show the user which costs less overall per month.
 		case 12:
-			var formatStyle = product.priceFormatStyle
-			var priceDivided = product.price / 12
+			let formatStyle = product.priceFormatStyle
+			let priceDivided = product.price / 12
 			return MobilePlanPrice(perMonthPrice: priceDivided.formatted(formatStyle), perIntervalPrice: product.displayPrice)
-		case 1:
-			return MobilePlanPrice(perMonthPrice: product.displayPrice, perIntervalPrice: product.displayPrice)
-		default:
-			fatalError("unsupported interval \(interval)")
+		case 1: return MobilePlanPrice(perMonthPrice: product.displayPrice, perIntervalPrice: product.displayPrice)
+		default: fatalError("unsupported interval \(interval)")
 		}
 	}
-	
 	public func showSubscriptionConfigView() async throws {
-		let window = await UIApplication.shared.keyWindow!.windowScene!
-		try await AppStore.showManageSubscriptions(in: window)
+		let window = await UIApplication.shared.connectedScenes.first
+		try await AppStore.showManageSubscriptions(in: window as! UIWindowScene)
 	}
-	
 	public func requestSubscriptionToPlan(_ plan: String, _ interval: Int, _ customerIdBytes: DataWrapper) async throws -> MobilePaymentResult {
 		let uuid = customerIdToUUID(customerIdBytes.data)
 		let planType = formatPlanType(plan, withInterval: interval)
@@ -73,7 +62,7 @@ public class IosMobilePaymentsFacade: MobilePaymentsFacade {
 			switch interval {
 			case 1: "monthly"
 			case 12: "yearly"
-			default: fatalError()
+			default: fatalError("invalid plan (\(plan)) interval (\(interval))")
 			}
 
 		return "plans.\(plan).\(intervalString)"
