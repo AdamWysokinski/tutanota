@@ -135,7 +135,7 @@ export class SubscriptionViewer implements UpdatableSettingsViewer {
 									click: async () => {
 										if (isAppStorePayment) {
 											if (!isIOSApp()) {
-												return Dialog.message(() => "Store made subscriptions should be directly managed in the store").then(() => {
+												return Dialog.message("storeSubscription_msg").then(() => {
 													window.open("https://apps.apple.com/account/subscriptions", "_blank")
 												})
 											}
@@ -264,7 +264,7 @@ export class SubscriptionViewer implements UpdatableSettingsViewer {
 		//
 		// This prevents the user from accidentally changing a subscription that they don't own
 		if (!isSameOwner) {
-			return Dialog.message(() => "YOU SHALL NOT PASS!")
+			return Dialog.message("storeMultiSubscriptionError_msg")
 		}
 
 		await this.mobilePaymentsFacade.showSubscriptionConfigView()

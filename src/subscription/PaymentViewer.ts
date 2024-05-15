@@ -152,7 +152,7 @@ export class PaymentViewer implements UpdatableSettingsViewer {
 		const isAppStorePayment = this._accountingInfo && getPaymentMethodType(this._accountingInfo) === PaymentMethodType.AppStore
 
 		if (isAppStorePayment) {
-			return Dialog.message(() => "Store made subscriptions should be directly managed in the store").then(() => {
+			return Dialog.message("storeSubscription_msg").then(() => {
 				window.open("https://apps.apple.com/account/subscriptions", "_blank")
 			})
 		}
