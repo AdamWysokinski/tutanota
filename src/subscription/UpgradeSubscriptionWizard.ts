@@ -107,11 +107,13 @@ export async function showUpgradeWizard(logins: LoginController, acceptedPlans: 
 		msg: msg != null ? msg : null,
 	}
 
-	const wizardPages = [wizardPageWrapper(UpgradeSubscriptionPage, new UpgradeSubscriptionPageAttrs(upgradeData))]
+	const wizardPages = [
+		wizardPageWrapper(UpgradeSubscriptionPage, new UpgradeSubscriptionPageAttrs(upgradeData)),
+		wizardPageWrapper(UpgradeConfirmSubscriptionPage, new InvoiceAndPaymentDataPageAttrs(upgradeData)),
+	]
 	if (!isIOSApp()) {
-		wizardPages.push(wizardPageWrapper(InvoiceAndPaymentDataPage, new InvoiceAndPaymentDataPageAttrs(upgradeData)))
+		wizardPages.splice(1, 0, wizardPageWrapper(InvoiceAndPaymentDataPage, new InvoiceAndPaymentDataPageAttrs(upgradeData)))
 	}
-	wizardPages.push(wizardPageWrapper(UpgradeConfirmSubscriptionPage, new InvoiceAndPaymentDataPageAttrs(upgradeData)))
 
 	const deferred = defer<void>()
 	const wizardBuilder = createWizardDialog(upgradeData, wizardPages, async () => {
@@ -171,13 +173,16 @@ export async function loadSignupWizard(
 	}
 
 	const invoiceAttrs = new InvoiceAndPaymentDataPageAttrs(signupData)
+
 	const wizardPages = [
 		wizardPageWrapper(UpgradeSubscriptionPage, new UpgradeSubscriptionPageAttrs(signupData)),
 		wizardPageWrapper(SignupPage, new SignupPageAttrs(signupData)),
-		wizardPageWrapper(InvoiceAndPaymentDataPage, invoiceAttrs),
 		wizardPageWrapper(UpgradeConfirmSubscriptionPage, invoiceAttrs),
 		wizardPageWrapper(UpgradeCongratulationsPage, new UpgradeCongratulationsPageAttrs(signupData)),
 	]
+	if (!isIOSApp()) {
+		wizardPages.splice(2, 0, wizardPageWrapper(InvoiceAndPaymentDataPage, invoiceAttrs))
+	}
 	const wizardBuilder = createWizardDialog(signupData, wizardPages, async () => {
 		if (locator.logins.isUserLoggedIn()) {
 			await locator.logins.logout(false)
