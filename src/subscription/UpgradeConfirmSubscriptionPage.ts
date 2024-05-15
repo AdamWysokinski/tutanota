@@ -97,10 +97,10 @@ export class UpgradeConfirmSubscriptionPage implements WizardPageN<UpgradeSubscr
 
 	private async handleAppStorePayment(data: UpgradeSubscriptionData): Promise<boolean> {
 		const customerIdBytes = base64ToUint8Array(base64ExtToBase64(data.customer!._id))
-		let result = await locator.mobilePaymentsFacade.requestSubscriptionToPlan(
-			PlanTypeToName[data.type].toLowerCase(),
-			data.options.paymentInterval(),
-			customerIdBytes,
+
+		let result = await showProgressDialog(
+			"pleaseWait_msg",
+			locator.mobilePaymentsFacade.requestSubscriptionToPlan(PlanTypeToName[data.type].toLowerCase(), data.options.paymentInterval(), customerIdBytes),
 		)
 
 		if (result.result !== MobilePaymentResultType.Success) {
