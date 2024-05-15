@@ -3,7 +3,6 @@ import { AesKey, AsymmetricKeyPair, decryptKey, decryptKeyPair } from "@tutao/tu
 import { Group, GroupKey, GroupKeyTypeRef, GroupTypeRef } from "../../entities/sys/TypeRefs.js"
 import { Versioned } from "@tutao/tutanota-utils/dist/Utils.js"
 import { UserFacade } from "./UserFacade.js"
-import { assertNotNull } from "@tutao/tutanota-utils"
 import { NotFoundError } from "../../common/error/RestError.js"
 import { customIdToString, getElementId, isSameId, stringToCustomId } from "../../common/utils/EntityUtils.js"
 import { VersionedKey } from "../crypto/CryptoFacade.js"
@@ -14,7 +13,12 @@ import { KeyCache } from "./KeyCache.js"
  * Handle group key versioning.
  */
 export class KeyLoaderFacade {
-	constructor(private readonly keyCache: KeyCache, private readonly userFacade: UserFacade, private readonly entityClient: EntityClient) {}
+	constructor(
+		private readonly keyCache: KeyCache,
+		private readonly userFacade: UserFacade,
+		private readonly entityClient: EntityClient,
+		private readonly nonCachiungEntityClient: EntityClient,
+	) {}
 
 	/**
 	 * Load the symmetric group key for the groupId with the provided version.
@@ -102,13 +106,29 @@ export class KeyLoaderFacade {
 		currentGroupKey: VersionedKey,
 		targetKeyVersion: number,
 	): Promise<{ symmetricGroupKey: AesKey; groupKeyInstance: GroupKey }> {
-		const formerKeysList = assertNotNull(
-			group.formerGroupKeys,
-			`no former group keys, current key version: ${group.groupKeyVersion}, target key version: ${targetKeyVersion}`,
-		).list
+		let formerKeysList: string
+		if (group.formerGroupKeys == null) {
+			console.log(
+				`NO former group keys, current key version from group ${group._id}: ${group.groupKeyVersion}, current version in group key: ${currentGroupKey.version}, target key version: ${targetKeyVersion}`,
+			)
+			const newGroup = await this.nonCachiungEntityClient.load(GroupTypeRef, group._id)
+			formerKeysList = newGroup.formerGroupKeys!.list
+		}
+		// const formerKeysList = assertNotNull(
+		// 	group.formerGroupKeys,
+		// 	`no former group keys, current key version from group ${group._id}: ${group.groupKeyVersion}, current version in group key: ${currentGroupKey.version}, target key version: ${targetKeyVersion}`,
+		// ).list
+		else {
+			formerKeysList = group.formerGroupKeys?.list
+			console.log(
+				`FORMER group keys, current key version from group ${group._id}: ${group.groupKeyVersion}, current version in group key: ${currentGroupKey.version}, target key version: ${targetKeyVersion}`,
+			)
+		}
+
 		// start id is not included in the result of the range request, so we need to start at current version.
 		const startId = stringToCustomId(String(currentGroupKey.version))
 		const amountOfKeysIncludingTarget = currentGroupKey.version - targetKeyVersion
+
 		const formerKeys: GroupKey[] = await this.entityClient.loadRange(GroupKeyTypeRef, formerKeysList, startId, amountOfKeysIncludingTarget, true)
 
 		let lastVersion = currentGroupKey.version
