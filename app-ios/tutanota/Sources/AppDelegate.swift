@@ -30,6 +30,8 @@ import UIKit
 	}
 
 	fileprivate func start() {
+		spawnTransactionFinisher();
+
 		let userPreferencesProvider = UserPreferencesProviderImpl()
 		let notificationStorage = NotificationStorage(userPreferencesProvider: userPreferencesProvider)
 		let keychainManager = KeychainManager(keyGenerator: KeyGenerator())
@@ -124,6 +126,17 @@ import UIKit
 	func applicationWillTerminate(_ application: UIApplication) {
 		self.viewController.onApplicationWillTerminate()
 		do { try FileUtils.deleteSharedStorage() } catch { TUTSLog("failed to delete shared storage on shutdown: \(error)") }
+	}
+
+	// everything is handled on the server. nothing to do here
+	private func spawnTransactionFinisher() -> Task<Void, Error> {
+		Task.detached {
+			for await result in Transaction.updates {
+				let transaction = IosMobilePaymentsFacade.checkVerified(result)
+				TUTSLog("finishing transaction \(transaction.id)")
+				await transaction.finish()
+			}
+		}
 	}
 }
 

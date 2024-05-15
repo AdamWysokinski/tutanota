@@ -3,6 +3,7 @@ import StoreKit
 
 public class IosMobilePaymentsFacade: MobilePaymentsFacade {
 	private let ALL_PURCHASEABLE_PLANS = ["revolutionary", "legend"]
+	private let MOBILE_PAYMENT_DOMAIN = "de.tutao.tutanota.MobilePayment"
 
 	public func checkLastTransactionOwner(_ customerIdBytes: DataWrapper) async throws -> Bool {
 		try await Transaction.all.contains { transaction in
@@ -56,14 +57,19 @@ public class IosMobilePaymentsFacade: MobilePaymentsFacade {
 
 		// FIXME: handle errors/no such product
 		let product = (try await Product.products(for: [planType]))[0]
-		NSLog("Attempting to purchase %@ - %@", product.displayName, product.displayPrice)
+		TUTSLog("Attempting to purchase \(product.displayName) for \(product.displayPrice)")
 		let result = try await product.purchase(options: [Product.PurchaseOption.appAccountToken(uuid)])
 
 		switch result {
 		case .success(let verification):
-			let transaction = checkVerified(verification)
+			let transaction = Self.checkVerified(verification)
+			
 			let id = transaction.id
-			await transaction.finish()  // FIXME: do this after we have confirmed with the server!
+
+			if transaction.appAccountToken != uuid {
+				throw TUTErrorFactory.createError(withDomain: MOBILE_PAYMENT_DOMAIN, message: "Apparently succeeded buying, but actually got a mismatched customer UUID (got \(transaction.appAccountToken?.uuidString ?? "<null>"), expected \(uuid))")
+			}
+
 			return MobilePaymentResult(
 				result: MobilePaymentResultType.success,
 				transactionID: String(id),
@@ -86,7 +92,7 @@ public class IosMobilePaymentsFacade: MobilePaymentsFacade {
 		return "plans.\(plan).\(intervalString)"
 	}
 
-	func checkVerified<T>(_ result: VerificationResult<T>) -> T {
+	static func checkVerified<T>(_ result: VerificationResult<T>) -> T {
 		switch result {
 		case .unverified: fatalError("failed verification - oh no")
 		case .verified(let safe): return safe
