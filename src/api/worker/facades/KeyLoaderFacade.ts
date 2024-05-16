@@ -7,6 +7,7 @@ import { NotFoundError } from "../../common/error/RestError.js"
 import { customIdToString, getElementId, isSameId, stringToCustomId } from "../../common/utils/EntityUtils.js"
 import { VersionedKey } from "../crypto/CryptoFacade.js"
 import { KeyCache } from "./KeyCache.js"
+import { assertNotNull } from "@tutao/tutanota-utils"
 
 /**
  * Load symmetric and asymmetric keys and decrypt them.
@@ -109,20 +110,14 @@ export class KeyLoaderFacade {
 		let formerKeysList: string
 		if (group.formerGroupKeys == null) {
 			console.log(
-				`NO former group keys, current key version from group ${group._id}: ${group.groupKeyVersion}, current version in group key: ${currentGroupKey.version}, target key version: ${targetKeyVersion}`,
+				`No former group keys, current key version from group ${group._id}: ${group.groupKeyVersion}, current version in group key: ${currentGroupKey.version}, target key version: ${targetKeyVersion}.
+				Downloading fresh group instance from server...`,
 			)
 			const newGroup = await this.nonCachiungEntityClient.load(GroupTypeRef, group._id)
-			formerKeysList = newGroup.formerGroupKeys!.list
-		}
-		// const formerKeysList = assertNotNull(
-		// 	group.formerGroupKeys,
-		// 	`no former group keys, current key version from group ${group._id}: ${group.groupKeyVersion}, current version in group key: ${currentGroupKey.version}, target key version: ${targetKeyVersion}`,
-		// ).list
-		else {
-			formerKeysList = group.formerGroupKeys?.list
-			console.log(
-				`FORMER group keys, current key version from group ${group._id}: ${group.groupKeyVersion}, current version in group key: ${currentGroupKey.version}, target key version: ${targetKeyVersion}`,
-			)
+
+			formerKeysList = assertNotNull(newGroup.formerGroupKeys, `freshly downloaded group has no formerGroupKeys reference either`).list
+		} else {
+			formerKeysList = group.formerGroupKeys.list
 		}
 
 		// start id is not included in the result of the range request, so we need to start at current version.

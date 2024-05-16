@@ -36,6 +36,7 @@ o.spec("KeyLoaderFacadeTest", function () {
 	let keyCache: KeyCache
 	let userFacade: UserFacade
 	let entityClient: EntityClient
+	let nonCachingEntityClient: EntityClient
 	let pqFacade: PQFacade
 	let keyLoaderFacade: KeyLoaderFacade
 
@@ -55,8 +56,9 @@ o.spec("KeyLoaderFacadeTest", function () {
 		keyCache = new KeyCache()
 		userFacade = object()
 		entityClient = object()
+		nonCachingEntityClient = object()
 		pqFacade = new PQFacade(new WASMKyberFacade(await loadLibOQSWASM()))
-		keyLoaderFacade = new KeyLoaderFacade(keyCache, userFacade, entityClient)
+		keyLoaderFacade = new KeyLoaderFacade(keyCache, userFacade, entityClient, nonCachingEntityClient)
 
 		formerKeys = []
 		formerKeyPairsDecrypted = []
