@@ -1,5 +1,5 @@
 use crate::entity_client::EntityClient;
-use crate::instance_mapper::{InstanceMapper, InstanceMapperError, TypeModel, TypeModelProvider};
+use crate::instance_mapper::{InstanceMapper, InstanceMapperError};
 use rest_client::{RestClient, RestClientError};
 use std::collections::HashMap;
 use std::fmt::{Debug, Display, Formatter};
@@ -7,12 +7,16 @@ use std::ops::Deref;
 use std::sync::{Arc, RwLock};
 use thiserror::Error;
 use wasm_bindgen::prelude::wasm_bindgen;
+use metamodel::TypeModel;
+use type_model_provider::TypeModelProvider;
 
 mod entity_client;
 mod instance_mapper;
 mod json_element;
 mod rest_client;
 mod element_value;
+mod metamodel;
+mod type_model_provider;
 
 uniffi::setup_scaffolding!();
 
@@ -22,6 +26,18 @@ pub struct TypeRef {
     pub app: String,
     pub type_: String,
 }
+
+// Option 1:
+// metamodel -> Rust struct -> Kotlin/Swift classes
+// need to be able to covert from ParsedEntity -> Rust struct
+// will generate a bit more code but we need to write the conversion only once
+// might or might not work for WASM
+
+// Option 2:
+// metamodel -> Kotlin/Swift classes
+// need to be able to covert from ParsedEntity -> Kotlin/Swift class
+// will generate a bit less code but we need to write the conversion for every platform
+// will work for WASM for sure
 
 impl Display for TypeRef {
     fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {

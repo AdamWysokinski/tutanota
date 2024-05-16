@@ -2,95 +2,17 @@ use std::cmp::PartialEq;
 use std::collections::HashMap;
 use std::time::{Duration, SystemTime};
 
-use base64::{engine::general_purpose::STANDARD as BASE64_STANDARD, Engine as _};
-use serde::{Deserialize};
+use base64::{Engine as _, engine::general_purpose::STANDARD as BASE64_STANDARD};
+use serde::Deserialize;
 use thiserror::Error;
 
-use crate::instance_mapper::Cardinality::ZeroOrOne;
-use crate::instance_mapper::InstanceMapperError::InvalidValue;
-use crate::json_element::{JsonElement, RawEntity};
 use crate::{IdTuple, TypeRef};
 use crate::element_value::{ElementValue, ParsedEntity};
-
-#[derive(Deserialize, PartialEq)]
-pub enum ElementType {
-    #[serde(rename = "ELEMENT_TYPE")]
-    Element,
-    #[serde(rename = "LIST_ELEMENT_TYPE")]
-    ListElement,
-    #[serde(rename = "DATA_TRANSFER_TYPE")]
-    DataTransfer,
-    #[serde(rename = "AGGREGATED_TYPE")]
-    Aggregated,
-    #[serde(rename = "BLOB_ELEMENT_TYPE")]
-    BlobElement,
-}
-
-#[derive(Deserialize)]
-pub enum ValueType {
-    String,
-    Number,
-    Bytes,
-    Date,
-    Boolean,
-    GeneratedId,
-    CustomId,
-    CompressedString,
-}
-
-#[derive(Deserialize, PartialEq)]
-pub enum Cardinality {
-    ZeroOrOne,
-    Any,
-    One,
-}
-
-// 	ElementAssociation: "ELEMENT_ASSOCIATION",
-// 	ListAssociation: "LIST_ASSOCIATION",
-// 	ListElementAssociation: "LIST_ELEMENT_ASSOCIATION",
-// 	Aggregation: "AGGREGATION",
-// 	BlobElementAssociation: "BLOB_ELEMENT_ASSOCIATION",
-#[derive(Deserialize)]
-pub enum AssociationType {
-    #[serde(rename = "ELEMENT_ASSOCIATION")]
-    ElementAssociation,
-    #[serde(rename = "LIST_ASSOCIATION")]
-    ListAssociation,
-    #[serde(rename = "LIST_ELEMENT_ASSOCIATION")]
-    ListElementAssociation,
-    #[serde(rename = "AGGREGATION")]
-    Aggregation,
-    #[serde(rename = "BLOB_ELEMENT_ASSOCIATION")]
-    BlobElementAssociation,
-}
-
-#[derive(Deserialize)]
-pub struct ModelValue {
-    id: u64,
-    #[serde(rename = "type")]
-    value_type: ValueType,
-    cardinality: Cardinality,
-    #[serde(rename = "final")]
-    is_final: bool,
-    encrypted: bool,
-}
-
-#[derive(Deserialize)]
-pub struct TypeModel {
-    id: u64,
-    since: u64,
-    app: String,
-    version: String,
-    name: String,
-    #[serde(rename = "type")]
-    element_type: ElementType,
-    versioned: bool,
-    encrypted: bool,
-    #[serde(rename = "rootId")]
-    root_id: String,
-    values: HashMap<String, ModelValue>,
-    associations: HashMap<String, ModelAssociation>,
-}
+use crate::instance_mapper::InstanceMapperError::InvalidValue;
+use crate::json_element::{JsonElement, RawEntity};
+use crate::metamodel::{AssociationType, Cardinality, ElementType, ModelValue, TypeModel, ValueType};
+use crate::metamodel::Cardinality::ZeroOrOne;
+use crate::type_model_provider::TypeModelProvider;
 
 impl From<&TypeModel> for TypeRef {
     fn from(value: &TypeModel) -> Self {
@@ -98,41 +20,6 @@ impl From<&TypeModel> for TypeRef {
             app: value.app.clone(),
             type_: value.name.clone(),
         }
-    }
-}
-
-#[derive(Deserialize)]
-pub struct ModelAssociation {
-    id: u64,
-    #[serde(rename = "type")]
-    association_type: AssociationType,
-    cardinality: Cardinality,
-    #[serde(rename = "refType")]
-    ref_type: String,
-    #[serde(rename = "final")]
-    is_final: bool,
-    /**
-     * From which model we import this association from. Currently the field only exists for aggregates because they are only ones
-     * which can be imported across models.
-     */
-    dependency: Option<String>,
-}
-
-type AppName = String;
-type TypeName = String;
-pub struct TypeModelProvider {
-    app_models: HashMap<AppName, HashMap<TypeName, TypeModel>>,
-}
-
-impl TypeModelProvider {
-    pub fn new(app_models: HashMap<String, HashMap<String, TypeModel>>) -> TypeModelProvider {
-        TypeModelProvider { app_models }
-    }
-
-    fn get_type_model<'a>(&self, app_name: &str, entity_name: &str) -> Option<&TypeModel> {
-        let app_map = self.app_models.get(app_name)?;
-        let entity_model = app_map.get(entity_name)?;
-        Some(entity_model)
     }
 }
 
@@ -259,7 +146,7 @@ impl InstanceMapper {
         Ok(mapped)
     }
 
-    fn make_parsed_aggregated_array(&self, association_name: &String, association_type_ref: &TypeRef, elements: Vec<JsonElement>) -> Result<Vec<ElementValue>, InstanceMapperError> {
+    fn make_parsed_aggregated_array(&self, association_name: &str, association_type_ref: &TypeRef, elements: Vec<JsonElement>) -> Result<Vec<ElementValue>, InstanceMapperError> {
         let mut parsed_aggregates = Vec::new();
         for element in elements {
             match element {
@@ -289,7 +176,7 @@ impl InstanceMapper {
         let type_model = self.get_type_model(&type_ref)?;
         let mut mapped: RawEntity = HashMap::new();
         for (value_name, value_type) in &type_model.values {
-            // reuse the name
+            // we take out of the map to reuse the names/values
             let (value_name, value) =
                 entity
                     .remove_entry(value_name)

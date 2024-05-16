@@ -141,20 +141,19 @@ impl EntityClient {
     // }
     //
     pub async fn update(&self, type_ref: &TypeRef, entity: ParsedEntity) -> Result<(), ApiCallError> {
-        // FIXME why parse() and serialize() are using remove_entry?
-        let raw_entity = self.instance_mapper.serialize(type_ref, entity.clone())?;
+        let id = match &entity.get("_id").unwrap() {
+            ElementValue::IdTupleId(ref id_tuple) => {
+                format!("{}/{}", &id_tuple.list_id, &id_tuple.element_id)
+            }
+            _ => panic!("id is not string or array"),
+        };
+        let raw_entity = self.instance_mapper.serialize(type_ref, entity)?;
         let body = serde_json::to_vec(&raw_entity).unwrap();
         let options = RestClientOptions {
             body: Some(body),
             headers: self.auth_headers_provider.auth_headers(),
         };
         // FIXME we should look at type model whether it is ET or LET
-        let id = match entity.get("_id").unwrap() {
-            ElementValue::IdTupleId(id_tuple) => {
-                format!("{}/{}", &id_tuple.list_id, &id_tuple.element_id)
-            }
-            _ => panic!("id is not string or array"),
-        };
         let url = format!(
             "{}/rest/{}/{}/{}",
             self.base_url, type_ref.app, type_ref.type_, id
