@@ -123,6 +123,10 @@ export async function showUpgradeWizard(logins: LoginController, acceptedPlans: 
 	return deferred.promise
 }
 
+export async function hasAppStoreOngoingSubscription(userIdBytes: Uint8Array | null) {
+	return await locator.mobilePaymentsFacade.hasOngoingAppStoreSubsciption(userIdBytes)
+}
+
 export async function loadSignupWizard(
 	subscriptionParameters: SubscriptionParameters | null,
 	registrationDataId: string | null,
@@ -138,6 +142,12 @@ export async function loadSignupWizard(
 	const prices = priceDataProvider.getRawPricingData()
 	const domainConfig = locator.domainConfigProvider().getCurrentDomainConfig()
 	const featureListProvider = await FeatureListProvider.getInitializedInstance(domainConfig)
+
+	let hasAppStoreSubscription = false
+
+	if (isIOSApp()) {
+		hasAppStoreSubscription = await hasAppStoreOngoingSubscription(null)
+	}
 
 	const signupData: UpgradeSubscriptionData = {
 		options: {
@@ -169,7 +179,7 @@ export async function loadSignupWizard(
 		referralCode,
 		multipleUsersAllowed: false,
 		acceptedPlans,
-		msg: null,
+		msg: () => "Hello :)",
 	}
 
 	const invoiceAttrs = new InvoiceAndPaymentDataPageAttrs(signupData)

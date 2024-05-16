@@ -24,5 +24,5 @@ export interface MobilePaymentsFacade {
 	/**
 	 * Check if the latest transaction using the current Store Account belongs to the user
 	 */
-	checkLastTransactionOwner(customerIdBytes: Uint8Array): Promise<boolean>
+	hasOngoingAppStoreSubsciption(customerIdBytes: Uint8Array | null): Promise<boolean>
 }

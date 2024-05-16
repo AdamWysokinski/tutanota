@@ -258,7 +258,7 @@ export class SubscriptionViewer implements UpdatableSettingsViewer {
 	}
 
 	private async handleAppStoreSubscriptionChange() {
-		const isSameOwner = await this.mobilePaymentsFacade.checkLastTransactionOwner(base64ToUint8Array(base64ExtToBase64(this._customer!._id)))
+		const isSameOwner = await this.mobilePaymentsFacade.hasOngoingAppStoreSubsciption(base64ToUint8Array(base64ExtToBase64(this._customer!._id)))
 
 		// Show a dialog only if the user's Apple account's last transaction was with this customer ID
 		//

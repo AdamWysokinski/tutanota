@@ -30,11 +30,11 @@
 			"arg": [],
 			"ret": "void"
 		},
-		"checkLastTransactionOwner": {
+		"hasOngoingAppStoreSubsciption": {
 			"doc": "Check if the latest transaction using the current Store Account belongs to the user",
 			"arg": [
 				{
-					"customerIdBytes": "bytes"
+					"customerIdBytes": "bytes?"
 				}
 			],
 			"ret": "boolean"
