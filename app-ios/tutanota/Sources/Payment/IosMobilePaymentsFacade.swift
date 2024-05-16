@@ -5,7 +5,7 @@ public class IosMobilePaymentsFacade: MobilePaymentsFacade {
 	private let ALL_PURCHASEABLE_PLANS = ["revolutionary", "legend"]
 	private let MOBILE_PAYMENT_DOMAIN = "de.tutao.tutanota.MobilePayment"
 
-	public func checkLastTransactionOwner(_ customerIdBytes: DataWrapper?) async throws -> Bool {
+	public func hasOngoingAppStoreSubsciption(_ customerIdBytes: DataWrapper?) async throws -> Bool {
 		try await Transaction.currentEntitlements.contains { transaction in
 			guard let customerBytes = customerIdBytes else { return true }
 

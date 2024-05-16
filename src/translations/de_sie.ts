@@ -1694,6 +1694,6 @@ export default {
 		"yourMessage_label": "Ihre Nachricht",
 		"you_label": "Sie",
 		"storeSubscription_msg": "Die im Geschäft abgeschlossenen Abonnements sollten direkt im Geschäft verwaltet werden.",
-		"storeMultiSubscriptionError_msg": "Sie können nicht mehrere Abonnements mit der gleichen Apple-ID haben"
+		"storeMultiSubscriptionError_msg": "Sie können nicht mehrere Abonnements mit der gleichen Store-Konto haben"
 	}
 }

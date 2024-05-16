@@ -29,7 +29,7 @@ import { lang, TranslationKey } from "../misc/LanguageViewModel"
 import { Icons } from "../gui/base/icons/Icons"
 import { asPaymentInterval, formatPrice, formatPriceDataWithInfo, PaymentInterval } from "./PriceUtils"
 import { formatDate, formatStorageSize } from "../misc/Formatter"
-import { showUpgradeWizard } from "./UpgradeSubscriptionWizard"
+import { hasAppStoreOngoingSubscription, showUpgradeWizard } from "./UpgradeSubscriptionWizard"
 import { showSwitchDialog } from "./SwitchSubscriptionDialog"
 import stream from "mithril/stream"
 import Stream from "mithril/stream"
@@ -258,12 +258,12 @@ export class SubscriptionViewer implements UpdatableSettingsViewer {
 	}
 
 	private async handleAppStoreSubscriptionChange() {
-		const isSameOwner = await this.mobilePaymentsFacade.hasOngoingAppStoreSubsciption(base64ToUint8Array(base64ExtToBase64(this._customer!._id)))
+		const hasOngoingAppStoreSubsciption = await hasAppStoreOngoingSubscription(base64ToUint8Array(base64ExtToBase64(this._customer!._id)))
 
 		// Show a dialog only if the user's Apple account's last transaction was with this customer ID
 		//
 		// This prevents the user from accidentally changing a subscription that they don't own
-		if (!isSameOwner) {
+		if (!hasOngoingAppStoreSubsciption) {
 			return Dialog.message("storeMultiSubscriptionError_msg")
 		}
 

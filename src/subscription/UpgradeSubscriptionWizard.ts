@@ -149,6 +149,10 @@ export async function loadSignupWizard(
 		hasAppStoreSubscription = await hasAppStoreOngoingSubscription(null)
 	}
 
+	if (hasAppStoreSubscription) {
+		acceptedPlans = acceptedPlans.filter((plan) => plan === PlanType.Free)
+	}
+
 	const signupData: UpgradeSubscriptionData = {
 		options: {
 			businessUse: stream(prices.business),
@@ -179,7 +183,7 @@ export async function loadSignupWizard(
 		referralCode,
 		multipleUsersAllowed: false,
 		acceptedPlans,
-		msg: () => "Hello :)",
+		msg: hasAppStoreSubscription ? "storeMultiSubscriptionError_msg" : null,
 	}
 
 	const invoiceAttrs = new InvoiceAndPaymentDataPageAttrs(signupData)
