@@ -6,14 +6,12 @@ import android.util.Log
 import de.tutao.tutasdk.ApiCallException
 import de.tutao.tutasdk.ElementValue
 import de.tutao.tutasdk.HttpMethod
-import de.tutao.tutasdk.IdTuple
 import de.tutao.tutasdk.JsonElement
 import de.tutao.tutasdk.RestClient
 import de.tutao.tutasdk.RestClientException
 import de.tutao.tutasdk.RestClientOptions
 import de.tutao.tutasdk.RestResponse
-import de.tutao.tutasdk.Sdk
-import de.tutao.tutasdk.TypeRef
+
 import kotlinx.serialization.DeserializationStrategy
 import kotlinx.serialization.InternalSerializationApi
 import kotlinx.serialization.SerialFormat
@@ -28,6 +26,8 @@ import okhttp3.OkHttpClient
 import okhttp3.Request
 import java.io.IOException
 import java.util.concurrent.TimeUnit
+import de.tutao.tutasdk.Sdk
+import de.tutao.tutasdk.TypeRef
 
 private const val TAG = "SDKSAMPLE"
 
@@ -54,9 +54,9 @@ suspend fun runSdkExample() {
 //	val parsedMail = EntitySerialFormat(SerializersModule { }).decodeFromRawEntity(MailEntity.serializer(), result)
 //	Log.d(TAG, "parsed mail")
 
-	val updatedMail = result.toMutableMap()
-	updatedMail["unread"] = ElementValue.Bool(true)
-	entityClient.update(typeRef, updatedMail)
+//	val updatedMail = result.toMutableMap()
+//	updatedMail["unread"] = ElementValue.Bool(true)
+//	entityClient.update(typeRef, updatedMail)
 }
 
 fun ElementValue.dict(): Map<String, ElementValue> {
@@ -67,9 +67,9 @@ fun ElementValue.string(): String {
 	return (this as ElementValue.String).v1
 }
 
-private fun String.toIdTuple(): IdTuple {
+private fun String.toIdTuple(): de.tutao.tutasdk.IdTuple {
 	val (listId, elementId) = this.split("/")
-	return IdTuple(listId, elementId)
+	return de.tutao.tutasdk.IdTuple(listId, elementId)
 }
 
 class OkHttpRestClient : RestClient {

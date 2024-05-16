@@ -23,8 +23,8 @@ for arch in "${TARGETS[@]}"; do
   # And then consume one way or another.
   # Would be great to expose maven library for Android.
   # Ad-hoc:
-  mkdir -p "../app-android/app/src/main/jniLibs/${JNILIBS_DIR}"
-  mkdir -p "../app-android/app/src/main/java/de/tutao/tutasdk"
-  cp "target/${arch}-linux-android/release/libtutasdk.so" "../app-android/app/src/main/jniLibs/${JNILIBS_DIR}/libtutasdk.so"
-  cp "out/de/tutao/tutasdk/tutasdk.kt" "../app-android/app/src/main/java/de/tutao/tutasdk/tutasdk.kt"
+  mkdir -p "../android/app/src/main/jniLibs/${JNILIBS_DIR}"
+  mkdir -p "../android/app/src/main/java/de/tutao/tutasdk"
+  cp "target/${arch}-linux-android/release/libtutasdk.so" "../android/app/src/main/jniLibs/${JNILIBS_DIR}/libtutasdk.so"
+  cp "out/de/tutao/tutasdk/tutasdk.kt" "../android/app/src/main/java/de/tutao/tutasdk/tutasdk.kt"
 done

@@ -20,6 +20,10 @@ mod type_model_provider;
 
 uniffi::setup_scaffolding!();
 
+
+#[derive(uniffi::Record)]
+struct MailEntity {}
+
 #[derive(uniffi::Record, Debug, Clone)]
 #[wasm_bindgen(getter_with_clone)]
 pub struct TypeRef {
