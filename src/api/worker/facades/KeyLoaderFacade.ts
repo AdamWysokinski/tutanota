@@ -110,9 +110,10 @@ export class KeyLoaderFacade {
 		let formerKeysList: string
 		if (group.formerGroupKeys == null) {
 			console.log(
-				`No former group keys, current key version from group ${group._id}: ${group.groupKeyVersion}, current version in group key: ${currentGroupKey.version}, target key version: ${targetKeyVersion}.
-				Downloading fresh group instance from server...`,
+				`No former group keys, current key version from group ${group._id}: ${group.groupKeyVersion}, current version in group key: ${currentGroupKey.version}, target key version: ${targetKeyVersion}.` +
+					"\nDownloading fresh group instance from server...",
 			)
+			// It is possible that we are dealing with a group that has just been updated on the server, but we have not processed the entity update yet.
 			const newGroup = await this.nonCachiungEntityClient.load(GroupTypeRef, group._id)
 
 			formerKeysList = assertNotNull(newGroup.formerGroupKeys, `freshly downloaded group has no formerGroupKeys reference either`).list
