@@ -11,6 +11,8 @@ import de.tutao.tutasdk.RestClient
 import de.tutao.tutasdk.RestClientException
 import de.tutao.tutasdk.RestClientOptions
 import de.tutao.tutasdk.RestResponse
+import de.tutao.tutasdk.Sdk
+import de.tutao.tutasdk.TypeRef
 
 import kotlinx.serialization.DeserializationStrategy
 import kotlinx.serialization.InternalSerializationApi
@@ -26,8 +28,6 @@ import okhttp3.OkHttpClient
 import okhttp3.Request
 import java.io.IOException
 import java.util.concurrent.TimeUnit
-import de.tutao.tutasdk.Sdk
-import de.tutao.tutasdk.TypeRef
 
 private const val TAG = "SDKSAMPLE"
 

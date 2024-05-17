@@ -4,20 +4,37 @@ plugins {
 	id("org.mozilla.rust-android-gradle.rust-android")
 }
 
-var targetAbi = ""
-if (gradle.startParameter.taskNames.isNotEmpty()) {
-	if (gradle.startParameter.taskNames.size == 1) {
-		val targetTask = gradle.startParameter.taskNames[0].lowercase()
-		if (targetTask.contains("arm64")) {
-			targetAbi = "arm64"
-		} else if (targetTask.contains("arm")) {
-			targetAbi = "arm"
+fun getActiveBuildType(): String {
+	var buildType = "debug"
+	val taskNames = gradle.parent?.startParameter?.taskNames
+	if (!taskNames.isNullOrEmpty()) {
+		if (taskNames.size > 0) {
+			val targetTask = taskNames[0].lowercase()
+			if (targetTask.contains("release")) {
+				buildType = "release"
+			}
+		}
+	}
+	return buildType
+}
+fun getABITargets(): List<String> {
+	return listOf("arm", "arm64", "x86", "x86_64")
+}
+fun getJNILibsDirs(): List<String> {
+	val abiTargets = getABITargets()
+	return abiTargets.map {
+		when (it) {
+			"arm" -> "armeabi-v7a"
+			"arm64" -> "arm64-v8a"
+			"x86" -> "x86"
+			"x86_64" -> "x86_64"
+			else -> "arm64-v8a"
 		}
 	}
 }
 
 android {
-	namespace = "com.example.tutasdk"
+	namespace = "de.tutao.tutasdk"
 	compileSdk = 34
 
 	defaultConfig {
@@ -28,6 +45,9 @@ android {
 	}
 
 	buildTypes {
+		debug {
+			isJniDebuggable=true
+		}
 		release {
 			isMinifyEnabled = false
 			proguardFiles(getDefaultProguardFile("proguard-android-optimize.txt"), "proguard-rules.pro")
@@ -45,7 +65,7 @@ android {
 
 dependencies {
 	implementation("net.java.dev.jna:jna:5.13.0@aar")
-	implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.6.4")
+	implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.8.0")
 	implementation("androidx.annotation:annotation:1.8.0")
 	testImplementation("junit:junit:4.13.2")
 	androidTestImplementation("androidx.test.ext:junit:1.1.5")
@@ -57,25 +77,35 @@ cargo {
 	libname = "tutasdk"
 	prebuiltToolchains = true
 	pythonCommand = "python3"
-	targets = when {
-		targetAbi.isBlank() -> listOf("arm", "arm64", "x86_64")
-		targetAbi == "arm" -> listOf("arm")
-		targetAbi == "arm64" -> listOf("arm64")
-		else -> listOf("arm", "arm64")
-	}
+	targets = getABITargets()
+	profile = getActiveBuildType()
 }
 
-tasks.register<Exec>("generateBinding") {
+tasks.register("generateBinding") {
 	dependsOn("cargoBuild")
-	workingDir("../../rust")
-	executable("cargo")
-	// FIXME pick the first target
-	val anyTargetAbi = "arm64-v8a"
-	args("run", "--bin", "uniffi-bindgen", "generate", "--library", "${layout.buildDirectory.asFile.get()}/rustJniLibs/android/${anyTargetAbi}/libtutasdk.so", "--language", "kotlin", "--out-dir", "${layout.buildDirectory.asFile.get()}/generated-sources/tuta-sdk")
+	getJNILibsDirs().forEach { dir ->
+		doLast {
+			exec {
+				this.executable("mkdir")
+				this.args("-p", "${layout.buildDirectory.asFile.get()}/rustJniLibs/android/${dir}")
+			}
+			exec {
+				this.workingDir("../../rust")
+				this.executable("cargo")
+				this.args("run", "--bin", "uniffi-bindgen", "generate", "--library", "${layout.buildDirectory.asFile.get()}/rustJniLibs/android/${dir}/libtutasdk.so", "--language", "kotlin", "--out-dir", "${layout.buildDirectory.asFile.get()}/generated-sources/tuta-sdk")
+			}
+		}
+	}
 }
 
 tasks.whenTaskAdded {
 	when (name) {
-		"mergeDebugJniLibFolders", "mergeReleaseJniLibFolders" -> dependsOn("generateBinding")
+		"mergeDebugJniLibFolders", "mergeReleaseJniLibFolders" -> dependsOn("cargoBuild")
+	}
+}
+
+tasks.whenTaskAdded {
+	when (name) {
+		"compileDebugKotlin", "compileReleaseKotlin" -> dependsOn("generateBinding")
 	}
 }
