@@ -1,17 +1,11 @@
-use crate::rest_client::{HttpMethod, RestClientOptions};
-use crate::{ApiCallError, AuthHeadersProvider, IdTuple, RestClient, TypeRef};
 use std::sync::Arc;
-use wasm_bindgen::prelude::wasm_bindgen;
-use crate::element_value::{ElementValue, ParsedEntity};
-use crate::instance_mapper::{InstanceMapper};
-use crate::json_element::RawEntity;
 
-// It is kind of not ideal that this structure is public as it needs some references and also
-// exposes some internal fields that we have. Might be better to have an EntityClient that is our
-// actual impl and that can make take advantage of some lifetime stuff and then expose a wrapper
-// around it.
-#[derive(uniffi::Object)]
-#[wasm_bindgen]
+use crate::{ApiCallError, AuthHeadersProvider, IdTuple, RestClient, TypeRef};
+use crate::element_value::{ElementValue, ParsedEntity};
+use crate::instance_mapper::InstanceMapper;
+use crate::json_element::RawEntity;
+use crate::rest_client::{HttpMethod, RestClientOptions};
+
 pub struct EntityClient {
     rest_client: Arc<dyn RestClient>,
     base_url: String,
@@ -19,7 +13,6 @@ pub struct EntityClient {
     instance_mapper: Arc<InstanceMapper>
 }
 
-#[cfg(not(any(target_family = "wasm")))]
 impl EntityClient {
     pub(crate) fn new(
         rest_client: Arc<dyn RestClient>,
@@ -36,18 +29,6 @@ impl EntityClient {
     }
 }
 
-#[cfg(target_family = "wasm")]
-#[wasm_bindgen]
-impl EntityClient {
-    #[wasm_bindgen(constructor)]
-    pub fn wasm_new(rest_client: &dyn RestClient) -> EntityClient {
-        EntityClient {
-            rest_client: Arc::new(rest_client),
-        }
-    }
-}
-
-#[uniffi::export]
 impl EntityClient {
     pub async fn load_list_element(
         &self,

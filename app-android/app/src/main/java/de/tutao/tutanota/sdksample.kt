@@ -12,8 +12,6 @@ import de.tutao.tutasdk.RestClientException
 import de.tutao.tutasdk.RestClientOptions
 import de.tutao.tutasdk.RestResponse
 import de.tutao.tutasdk.Sdk
-import de.tutao.tutasdk.TypeRef
-
 import kotlinx.serialization.DeserializationStrategy
 import kotlinx.serialization.InternalSerializationApi
 import kotlinx.serialization.SerialFormat
@@ -37,12 +35,11 @@ suspend fun runSdkExample() {
 		"http://ivk:9000",
 		restClient,
 	)
-	sdk.login("Y92VaxGAAsABNrHX60_Ofd_ZCDNDeG-qwg")
-	val mailId = "NxqKPlI--c-0/NxqKQUk----0".toIdTuple()
-	val entityClient = sdk.entityClient()
-	val typeRef = TypeRef("tutanota", "Mail")
+	sdk.login("Y-HkC6FAAcABqwc0mYoRath5IWMWBhRPgA")
+	val mailId = "Ny6Z1uD--V-0/Ny6Z2kl----0".toIdTuple()
+	val mailFacade = sdk.mailFacade()
 	val result = try {
-		entityClient.loadListElement(typeRef, mailId)
+		mailFacade.loadEmailByIdEncrypted(mailId)
 	} catch (e: ApiCallException) {
 		Log.d(TAG, "request failed", e)
 		return

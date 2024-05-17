@@ -1,14 +1,17 @@
-use crate::entity_client::EntityClient;
-use crate::instance_mapper::{InstanceMapper, InstanceMapperError};
-use rest_client::{RestClient, RestClientError};
 use std::collections::HashMap;
 use std::fmt::{Debug, Display, Formatter};
 use std::ops::Deref;
 use std::sync::{Arc, RwLock};
+
 use thiserror::Error;
-use wasm_bindgen::prelude::wasm_bindgen;
+
 use metamodel::TypeModel;
+use rest_client::{RestClient, RestClientError};
 use type_model_provider::TypeModelProvider;
+
+use crate::entity_client::EntityClient;
+use crate::instance_mapper::{InstanceMapper, InstanceMapperError};
+use crate::mail_facade::MailFacade;
 
 mod entity_client;
 mod instance_mapper;
@@ -17,15 +20,11 @@ mod rest_client;
 mod element_value;
 mod metamodel;
 mod type_model_provider;
+mod mail_facade;
 
 uniffi::setup_scaffolding!();
 
-
-#[derive(uniffi::Record)]
-struct MailEntity {}
-
-#[derive(uniffi::Record, Debug, Clone)]
-#[wasm_bindgen(getter_with_clone)]
+#[derive(Debug, Clone)]
 pub struct TypeRef {
     pub app: String,
     pub type_: String,
@@ -49,15 +48,6 @@ impl Display for TypeRef {
     }
 }
 
-#[cfg(target_family = "wasm")]
-#[wasm_bindgen]
-impl TypeRef {
-    #[wasm_bindgen(constructor)]
-    pub fn new(app: String, type_: String) -> TypeRef {
-        TypeRef { app, type_ }
-    }
-}
-
 trait AuthHeadersProvider {
     fn auth_headers(&self) -> HashMap<String, String>;
 }
@@ -74,9 +64,7 @@ struct SdkState {
 #[derive(uniffi::Object)]
 pub struct Sdk {
     state: Arc<SdkState>,
-    base_url: String,
-    rest_client: Arc<dyn RestClient>,
-    instance_mapper: Arc<InstanceMapper>,
+    entity_client: Arc<EntityClient>,
 }
 
 fn init_type_model_provider() -> TypeModelProvider {
@@ -93,18 +81,22 @@ fn init_type_model_provider() -> TypeModelProvider {
 
 #[uniffi::export]
 impl Sdk {
-    // TODO: will add type models
     #[uniffi::constructor]
     pub fn new(base_url: String, rest_client: Arc<dyn RestClient>) -> Sdk {
         let type_model_provider = init_type_model_provider();
         // TODO validate parameters
+        let instance_mapper = Arc::new(InstanceMapper::new(type_model_provider));
+        let state = Arc::new(SdkState {
+            login_state: RwLock::new(LoginState::NotLoggedIn),
+        });
         Sdk {
-            state: Arc::new(SdkState {
-                login_state: RwLock::new(LoginState::NotLoggedIn),
-            }),
-            instance_mapper: Arc::new(InstanceMapper::new(type_model_provider)),
-            base_url,
-            rest_client,
+            state: state.clone(),
+            entity_client: Arc::new(EntityClient::new(
+                rest_client,
+                instance_mapper,
+                &base_url,
+                state,
+            )),
         }
     }
 
@@ -118,13 +110,9 @@ impl Sdk {
         }
     }
 
-    pub fn entity_client(&self) -> Arc<EntityClient> {
-        Arc::new(EntityClient::new(
-            self.rest_client.clone(),
-            self.instance_mapper.clone(),
-            &self.base_url,
-            self.state.clone(),
-        ))
+
+    pub fn mail_facade(&self) -> MailFacade {
+        MailFacade::new(self.entity_client.clone())
     }
 }
 
@@ -167,9 +155,15 @@ pub enum ApiCallError {
     },
     #[error("ServerResponseError, status: {status}")]
     ServerResponseError { status: u32 },
-    #[error("InstanceMapperError, source: {source}")]
-    InstanceMappingError {
-        #[from]
-        source: InstanceMapperError,
+    #[error("InternalSdkError: {error_message}")]
+    InternalSdkError {
+        error_message: String,
     },
+}
+
+
+impl From<InstanceMapperError> for ApiCallError {
+    fn from(value: InstanceMapperError) -> Self {
+        ApiCallError::InternalSdkError { error_message: value.to_string() }
+    }
 }

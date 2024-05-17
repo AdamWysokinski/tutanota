@@ -1,9 +1,7 @@
-use std::cmp::PartialEq;
 use std::collections::HashMap;
 use std::time::{Duration, SystemTime};
 
 use base64::{Engine as _, engine::general_purpose::STANDARD as BASE64_STANDARD};
-use serde::Deserialize;
 use thiserror::Error;
 
 use crate::{IdTuple, TypeRef};
@@ -27,7 +25,7 @@ pub struct InstanceMapper {
     type_model_provider: TypeModelProvider,
 }
 
-#[derive(Error, Debug, uniffi::Error)]
+#[derive(Error, Debug)]
 pub enum InstanceMapperError {
     #[error("Type not found: {type_ref}")]
     TypeNotFound { type_ref: TypeRef },

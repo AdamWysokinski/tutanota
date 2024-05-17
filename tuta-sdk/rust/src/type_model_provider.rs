@@ -13,7 +13,7 @@ impl TypeModelProvider {
         TypeModelProvider { app_models }
     }
 
-    pub fn get_type_model<'a>(&self, app_name: &str, entity_name: &str) -> Option<&TypeModel> {
+    pub fn get_type_model(&self, app_name: &str, entity_name: &str) -> Option<&TypeModel> {
         let app_map = self.app_models.get(app_name)?;
         let entity_model = app_map.get(entity_name)?;
         Some(entity_model)
